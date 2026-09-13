@@ -53,6 +53,8 @@ class Settings(BaseSettings):
 
     # ── Background Jobs ──────────────────────────────────────────────
     enable_background_jobs: bool = False
+    firms_sync_interval_seconds: int = 600
+    watch_scan_interval_seconds: int = 300
 
     # ── Redis ─────────────────────────────────────────────────────────
     redis_url: str = ""

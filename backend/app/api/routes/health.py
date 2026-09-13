@@ -10,6 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 
 from app.core.config import Settings
+from app.db.session import check_db_connection
 
 router = APIRouter()
 
@@ -36,10 +37,11 @@ async def health_v1(request: Request):
     Never exposes secrets or credentials.
     """
     settings: Settings = request.app.state.settings
+    db_active = check_db_connection()
     return {
         "status": "ok",
         "version": settings.app_version,
-        "database": False,  # Phase 1: no database yet
+        "database": db_active,
         "nasa_configured": settings.nasa_configured,
         "ml_classifier_loaded": settings.enable_ml_classifier,
         "recurrence_model_loaded": settings.enable_recurrence_model,

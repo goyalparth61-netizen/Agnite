@@ -110,10 +110,40 @@ async def run_hotspot_analysis(
             f"Site center coordinate ({selected.latitude}, {selected.longitude}) is invalid."
         )
 
-    # 3. Spatial search: find nearby observations within radius_km (pure thermal domain)
+    # 3. Combine request observations + database persistent observations (Requirement 14 & 15)
+    # Deduplicate strictly by id so nothing is double-counted
+    merged_obs_by_id: dict[str, Observation] = {obs.id: obs for obs in observations}
+    try:
+        from app.db.repositories.observation_repository import ObservationRepository
+        from app.db.session import SessionLocal
+        from app.services.observation_service import model_to_observation
+
+        db = SessionLocal()
+        try:
+            db_models = ObservationRepository.get_near_location(
+                db=db,
+                latitude=selected.latitude,
+                longitude=selected.longitude,
+                radius_km=radius,
+                limit=1000,
+            )
+            for m in db_models:
+                if m.id not in merged_obs_by_id:
+                    merged_obs_by_id[m.id] = model_to_observation(m)
+        finally:
+            db.close()
+    except Exception as db_exc:
+        logger.warning(
+            "Database historical observations query failed (non-fatal); using request observations: %s",
+            db_exc,
+        )
+
+    combined_observations = list(merged_obs_by_id.values())
+
+    # 4. Spatial search: find nearby observations within radius_km (pure thermal domain)
     nearby, all_unique, excluded_count = get_nearby_observations(
         selected_observation=selected,
-        observations=observations,
+        observations=combined_observations,
         radius_km=radius,
     )
 
@@ -263,7 +293,7 @@ async def run_hotspot_analysis(
         len(observations),
     )
 
-    return AnalysisResult(
+    result = AnalysisResult(
         model=model_info,
         classification=prediction.classification,
         status=prediction.status,
@@ -283,3 +313,22 @@ async def run_hotspot_analysis(
         recurrenceSignal=features.recurrence_signal,
         spatialContext=spatial_context,
     )
+
+    # Persist analysis record to DB (Requirement 26) - non-blocking & non-fatal
+    try:
+        from app.db.repositories.analysis_repository import AnalysisRepository
+        from app.db.session import SessionLocal
+
+        db = SessionLocal()
+        try:
+            AnalysisRepository.create(
+                db=db,
+                result=result,
+                selected_observation_id=selected.id if selected else None,
+            )
+        finally:
+            db.close()
+    except Exception as db_exc:
+        logger.warning("Analysis record persistence failed (non-fatal): %s", db_exc)
+
+    return result

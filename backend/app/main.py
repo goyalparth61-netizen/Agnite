@@ -19,7 +19,18 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import analysis, context, firms, health, timeline
+from app.api.routes import (
+    alerts,
+    analysis,
+    context,
+    firms,
+    health,
+    history,
+    observations,
+    reports,
+    timeline,
+    watches,
+)
 from app.core.config import Settings, get_settings
 from app.core.exceptions import FirmsError, ValidationError
 from app.core.logging import setup_logging
@@ -140,6 +151,13 @@ def create_app() -> FastAPI:
 
     # Phase 3 Spatial Context routes
     app.include_router(context.router, prefix="/api/v1")
+
+    # Phase 4 Persistent Intelligence, Monitoring & Alerts routes
+    app.include_router(observations.router, prefix="/api/v1")
+    app.include_router(history.router, prefix="/api/v1")
+    app.include_router(watches.router, prefix="/api/v1")
+    app.include_router(alerts.router, prefix="/api/v1")
+    app.include_router(reports.router, prefix="/api/v1")
 
     return app
 

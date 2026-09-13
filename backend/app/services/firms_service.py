@@ -138,6 +138,11 @@ class FirmsService:
             if warning:
                 result["warning"] = warning
 
+            # Asynchronously persist unseen observations (non-blocking, non-fatal)
+            asyncio.create_task(
+                self._async_persist_observations(parsed["observations"])
+            )
+
             # Update cache
             self._cache[key] = _CacheEntry(
                 timestamp_ms=fetched_ms, result=result
@@ -177,3 +182,24 @@ class FirmsService:
         raise FirmsError(
             f"{reason} No cached observations are available. Retry shortly."
         )
+
+    async def _async_persist_observations(self, observations: list[Any]) -> None:
+        """Asynchronously persist unseen FIRMS observations without blocking."""
+        if not observations:
+            return
+        try:
+            from app.db.repositories.observation_repository import ObservationRepository
+            from app.db.session import SessionLocal
+
+            db = SessionLocal()
+            try:
+                inserted, duplicates = ObservationRepository.bulk_insert_ignore_duplicates(
+                    db, observations
+                )
+                logger.debug(
+                    "FIRMS feed persistence: %d inserted, %d duplicates", inserted, duplicates
+                )
+            finally:
+                db.close()
+        except Exception as exc:
+            logger.warning("Background observation persistence failed (non-fatal): %s", exc)

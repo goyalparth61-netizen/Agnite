@@ -38,6 +38,12 @@ def iso_to_epoch_ms(iso_str: str) -> int:
     return int(dt.timestamp() * 1000)
 
 
+def epoch_ms_to_iso(ms: int | float) -> str:
+    """Convert epoch milliseconds to ISO-8601 UTC string."""
+    dt = datetime.fromtimestamp(ms / 1000.0, tz=timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{dt.microsecond // 1000:03d}Z"
+
+
 _ACQ_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _ACQ_TIME_RE = re.compile(r"^\d{1,4}$")
 
