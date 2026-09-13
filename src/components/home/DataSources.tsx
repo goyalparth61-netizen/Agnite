@@ -17,7 +17,7 @@ export default function DataSources() {
               <h3>{name}</h3>
               <p>{contribution}</p>
               <span>
-                {["NASA FIRMS", "VIIRS", "MODIS"].includes(name) ? "LIVE OBSERVATIONS" : name === "OpenStreetMap" ? "BASEMAP CONNECTED" : "PLANNED INTEGRATION"} <ArrowUpRight size={12} />
+                {["NASA FIRMS", "VIIRS", "MODIS"].includes(name) ? "FEED INTEGRATION" : name === "OpenStreetMap" ? "BASEMAP CONNECTED" : "PLANNED INTEGRATION"} <ArrowUpRight size={12} />
               </span>
             </article>
           ))}

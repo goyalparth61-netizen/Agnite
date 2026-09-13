@@ -1,7 +1,7 @@
 import { Flame } from "lucide-react";
 export default function Footer() {
   return (
-    <footer id="team" className="footer container">
+    <footer className="footer container">
       <div className="footer-main">
         <div>
           <a className="brand" href="#home">
@@ -44,3 +44,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

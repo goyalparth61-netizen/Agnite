@@ -5,11 +5,11 @@ import {distanceKm,isSavedReport,isWatch,readSaved,sampleObservations} from '../
 const rows=sampleObservations();
 assert.equal(rows.length,6);
 assert.ok(rows.every(row=>row.source==='demo'));
-assert.match(answerQuestion('How many hotspots are loaded?',rows,null),/^6 observations/);
+assert.match(answerQuestion('How many hotspots are loaded?',rows,null),/5 historical thermal detections/);
 assert.match(answerQuestion('Highest FRP',rows,null),/88.0 MW/);
 assert.match(answerQuestion('Explain classification',rows,null),/Run site analysis first/);
-assert.match(answerQuestion('Data sources',rows,null),/When enabled/);
-assert.match(answerQuestion('unrecognized command',rows,null),/language model is not connected/);
+assert.match(answerQuestion('Data sources',rows,null),/Source labels/);
+assert.match(answerQuestion('unrecognized command',rows,null),/unvalidated simulation/);
 assert.ok(Number.isFinite(distanceKm({latitude:90,longitude:0},{latitude:-90,longitude:180})));
 assert.equal(distanceKm(rows[0],rows[0]),0);
 assert.equal(isWatch({id:'site',name:'One',latitude:91,longitude:0,threshold:20}),false);

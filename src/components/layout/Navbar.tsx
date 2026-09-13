@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Flame, Menu, X } from "lucide-react";
 import StatusBadge from "../common/StatusBadge";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { documentationLinks, docId } from "../docs/DocumentationSection";
 const links = [
   ["Home", "home"],
   ["Platform", "platform"],
   ["Intelligence", "intelligence"],
-  ["Technology", "technology"],
-  ["Impact", "impact"],
+  ["Risk", "risk"],
+  ["Alerts", "alerts"],
+  ["Awareness", "awareness"],
   ["Team", "team"],
+  ["Contact", "contact"],
 ];
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
+  const reduced = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("home");
   useEffect(() => {
@@ -46,6 +52,7 @@ export default function Navbar() {
           onKeyDown={(e) => {
             if (e.key === "Escape") {
               setOpen(false);
+              setDocsOpen(false);
               document.getElementById("menu-toggle")?.focus();
             }
           }}
@@ -60,6 +67,61 @@ export default function Navbar() {
               {label}
             </a>
           ))}
+          <div
+            className="docs-dropdown"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null))
+                setDocsOpen(false);
+            }}
+          >
+            <button
+              id="docs-toggle"
+              aria-expanded={docsOpen}
+              aria-controls="docs-menu"
+              onClick={() => setDocsOpen(!docsOpen)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setDocsOpen(false);
+                  e.currentTarget.focus();
+                }
+              }}
+            >
+              Documentation <span aria-hidden="true">⌄</span>
+            </button>
+            <AnimatePresence>
+              {docsOpen && (
+                <motion.div
+                  id="docs-menu"
+                  className="docs-menu"
+                  initial={reduced ? false : { opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.15 }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.stopPropagation();
+                      setDocsOpen(false);
+                      document.getElementById("docs-toggle")?.focus();
+                    }
+                  }}
+                >
+                  {documentationLinks.map((title) => (
+                    <a
+                      key={title}
+                      href={`#${docId(title)}`}
+                      onClick={() => {
+                        setOpen(false);
+                        setDocsOpen(false);
+                      }}
+                    >
+                      {title}
+                    </a>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </nav>
         <div className="nav-actions">
           <StatusBadge />

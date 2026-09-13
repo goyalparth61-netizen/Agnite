@@ -1,4 +1,5 @@
 import { createServer as createHttpServer } from 'node:http';
+import {createAiProvider, handleAiRequest} from './aiProvider.mjs';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -272,10 +273,12 @@ function json(response, status, payload) {
 
 export function createServer({ distDir = defaultDist, fetchImpl, now, cacheTtlMs, timeoutMs } = {}) {
   const distRoot = resolve(distDir);
+  const ai = createAiProvider();
   const firms = createFirmsService({ fetchImpl, now, cacheTtlMs, timeoutMs });
   return createHttpServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
+      if (url.pathname === '/api/agnite/ask') return await handleAiRequest(request, response, ai);
       if (!['GET', 'HEAD'].includes(request.method)) {
         response.setHeader('Allow', 'GET, HEAD');
         return json(response, 405, { error: 'Method not allowed.' });
