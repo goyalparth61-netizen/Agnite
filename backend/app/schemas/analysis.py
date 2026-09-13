@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 from app.core.constants import DEFAULT_SEARCH_RADIUS_KM
+from app.schemas.context import SpatialContext
 from app.schemas.features import PersistenceResult
 from app.schemas.observation import Observation
 from app.schemas.prediction import ClassScore
@@ -245,6 +246,11 @@ class AnalysisResult(BaseModel):
         None,
         alias="recurrenceSignal",
         serialization_alias="recurrenceSignal",
+    )
+    spatial_context: Optional[SpatialContext] = Field(
+        None,
+        alias="spatialContext",
+        serialization_alias="spatialContext",
     )
 
     model_config = {

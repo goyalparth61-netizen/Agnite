@@ -19,7 +19,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import analysis, firms, health, timeline
+from app.api.routes import analysis, context, firms, health, timeline
 from app.core.config import Settings, get_settings
 from app.core.exceptions import FirmsError, ValidationError
 from app.core.logging import setup_logging
@@ -137,6 +137,9 @@ def create_app() -> FastAPI:
     # Phase 2 Thermal Intelligence routes
     app.include_router(analysis.router, prefix="/api/v1")
     app.include_router(timeline.router, prefix="/api/v1")
+
+    # Phase 3 Spatial Context routes
+    app.include_router(context.router, prefix="/api/v1")
 
     return app
 

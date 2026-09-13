@@ -30,7 +30,7 @@ router = APIRouter(tags=["Analysis"])
 async def run_analysis_endpoint(request: AnalysisRequest) -> AnalysisResult:
     """Run hotspot analysis workflow."""
     try:
-        return run_hotspot_analysis(request)
+        return await run_hotspot_analysis(request)
     except ValueError as val_err:
         logger.warning("Analysis validation error: %s", val_err)
         return JSONResponse(

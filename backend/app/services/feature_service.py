@@ -28,11 +28,15 @@ from app.services.persistence_service import calculate_persistence
 from app.utils.geo import haversine_km
 
 
+from app.schemas.context import SpatialContext
+
+
 def extract_base_features(
     history: HotspotHistory,
     nearby_observations: List[Observation],
     selected_observation: Observation,
     context: Optional[AnalysisContext] = None,
+    spatial_context: Optional[SpatialContext] = None,
 ) -> BaseHotspotFeatures:
     """Extract model-ready base features from history, observations, and context."""
     center_lat = selected_observation.latitude
@@ -58,6 +62,11 @@ def extract_base_features(
 
     ctx = context or AnalysisContext()
 
+    # Precedence: user/manual input takes priority; fallback to OSM spatial context
+    ind_dist = ctx.industrial_distance_km
+    if ind_dist is None and spatial_context and spatial_context.industrial_distance_km is not None:
+        ind_dist = spatial_context.industrial_distance_km
+
     return BaseHotspotFeatures(
         current_frp=history.current_frp,
         maximum_frp=history.maximum_frp,
@@ -80,7 +89,7 @@ def extract_base_features(
         thermal_variability=round(thermal_var, 3),
         spatial_spread_km=round(spatial_spread, 3),
         cluster_size=len(nearby_observations),
-        industrial_distance_km=ctx.industrial_distance_km,
+        industrial_distance_km=ind_dist,
         land_cover=ctx.land_cover,
         wind_kph=ctx.wind_kph,
         firms_count=firms_count,
@@ -108,25 +117,51 @@ def build_hotspot_features(
     nearby_observations: List[Observation],
     selected_observation: Observation,
     context: Optional[AnalysisContext] = None,
+    spatial_context: Optional[SpatialContext] = None,
 ) -> HotspotFeatures:
     """
     Central pipeline for feature generation.
 
-    1. Computes BaseHotspotFeatures
+    1. Computes BaseHotspotFeatures (incorporating spatial_context if available)
     2. Runs persistence_service to get PersistenceResult
     3. Derives recurrence signal
-    4. Emits final HotspotFeatures
+    4. Emits final HotspotFeatures with OSM and environmental fields
     """
     base = extract_base_features(
         history=history,
         nearby_observations=nearby_observations,
         selected_observation=selected_observation,
         context=context,
+        spatial_context=spatial_context,
     )
     persistence = calculate_persistence(base)
     recurrence_sig = derive_recurrence_signal(base, persistence)
 
-    # Combine into full HotspotFeatures
+    # Extract spatial context attributes if present
+    ind_feat_count = spatial_context.industrial_feature_count if spatial_context else 0
+    ind_w_1km = spatial_context.industrial_within_1km if spatial_context else False
+    ind_w_5km = spatial_context.industrial_within_5km if spatial_context else False
+    ind_w_10km = spatial_context.industrial_within_10km if spatial_context else False
+    c_1km = spatial_context.count_within_1km if spatial_context else 0
+    c_5km = spatial_context.count_within_5km if spatial_context else 0
+    c_10km = spatial_context.count_within_10km if spatial_context else 0
+    nearest_name = (
+        spatial_context.nearest_industrial_feature.name
+        if spatial_context and spatial_context.nearest_industrial_feature
+        else None
+    )
+    nearest_type = (
+        spatial_context.nearest_industrial_feature.feature_type
+        if spatial_context and spatial_context.nearest_industrial_feature
+        else None
+    )
+    power_nearby = spatial_context.power_infrastructure_nearby if spatial_context else False
+    flare_nearby = spatial_context.mapped_flare_nearby if spatial_context else False
+    chimney_nearby = spatial_context.mapped_chimney_nearby if spatial_context else False
+    ctx_conf = spatial_context.context_confidence if spatial_context else 0.0
+    ctx_src = spatial_context.source if spatial_context else "unknown"
+    ctx_prov = spatial_context.provenance if spatial_context else {}
+
     base_dict = base.model_dump()
     return HotspotFeatures(
         **base_dict,
@@ -134,4 +169,19 @@ def build_hotspot_features(
         persistence_status=persistence.status,
         persistence_details=persistence.details,
         recurrence_signal=recurrence_sig,
+        industrial_feature_count=ind_feat_count,
+        industrial_within_1km=ind_w_1km,
+        industrial_within_5km=ind_w_5km,
+        industrial_within_10km=ind_w_10km,
+        count_within_1km=c_1km,
+        count_within_5km=c_5km,
+        count_within_10km=c_10km,
+        nearest_industrial_name=nearest_name,
+        nearest_industrial_type=nearest_type,
+        power_infrastructure_nearby=power_nearby,
+        mapped_flare_nearby=flare_nearby,
+        mapped_chimney_nearby=chimney_nearby,
+        context_confidence=ctx_conf,
+        context_source=ctx_src,
+        context_provenance=ctx_prov,
     )

@@ -22,6 +22,10 @@ async def test_firms_compat_valid_response(client):
     """
     # Mock the NASA download to return our sample CSV
     with patch(
+        "app.services.firms_service.download_firms_csv",
+        new_callable=AsyncMock,
+        return_value=SAMPLE_FIRMS_CSV,
+    ), patch(
         "app.providers.nasa.client.download_firms_csv",
         new_callable=AsyncMock,
         return_value=SAMPLE_FIRMS_CSV,
@@ -80,6 +84,10 @@ async def test_firms_invalid_hours(client):
 async def test_firms_default_params(client):
     """Defaults to snpp/24 when no params provided."""
     with patch(
+        "app.services.firms_service.download_firms_csv",
+        new_callable=AsyncMock,
+        return_value=SAMPLE_FIRMS_CSV,
+    ), patch(
         "app.providers.nasa.client.download_firms_csv",
         new_callable=AsyncMock,
         return_value=SAMPLE_FIRMS_CSV,
@@ -96,14 +104,15 @@ async def test_firms_default_params(client):
 async def test_firms_v1_same_as_compat(client):
     """GET /api/v1/firms produces the same response as /api/firms."""
     with patch(
+        "app.services.firms_service.download_firms_csv",
+        new_callable=AsyncMock,
+        return_value=SAMPLE_FIRMS_CSV,
+    ), patch(
         "app.providers.nasa.client.download_firms_csv",
         new_callable=AsyncMock,
         return_value=SAMPLE_FIRMS_CSV,
     ):
         r1 = await client.get("/api/firms?sensor=noaa20&hours=168")
-        # Clear cache between requests by making a different sensor request
-        # Actually both hit the same mock, so the cache will serve r1's result
-        # for r2 if same key. Let's just verify the v1 endpoint works.
         r2 = await client.get("/api/v1/firms?sensor=noaa20&hours=168")
 
     assert r1.status_code == 200
@@ -125,6 +134,10 @@ async def test_firms_error_response_format(client):
         "app.services.firms_service.download_firms_csv",
         new_callable=AsyncMock,
         side_effect=FirmsError("NASA FIRMS could not be reached."),
+    ), patch(
+        "app.providers.nasa.client.download_firms_csv",
+        new_callable=AsyncMock,
+        side_effect=FirmsError("NASA FIRMS could not be reached."),
     ):
         response = await client.get("/api/firms?sensor=noaa20&hours=24")
 
@@ -139,6 +152,10 @@ async def test_firms_error_response_format(client):
 async def test_firms_stale_and_cached_are_booleans(client):
     """stale and cached must be boolean, not strings or numbers."""
     with patch(
+        "app.services.firms_service.download_firms_csv",
+        new_callable=AsyncMock,
+        return_value=SAMPLE_FIRMS_CSV,
+    ), patch(
         "app.providers.nasa.client.download_firms_csv",
         new_callable=AsyncMock,
         return_value=SAMPLE_FIRMS_CSV,

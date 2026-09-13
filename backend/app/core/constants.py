@@ -89,3 +89,28 @@ RECURRENCE_SIGNAL_INSUFFICIENT = "INSUFFICIENT_HISTORY"
 RECURRENCE_SIGNAL_LOW = "LOW"
 RECURRENCE_SIGNAL_MODERATE = "MODERATE"
 RECURRENCE_SIGNAL_HIGH = "HIGH"
+
+# ── Phase 3 OpenStreetMap Context Constants ───────────────────────────
+DEFAULT_OSM_SEARCH_RADIUS_KM = 10.0
+MIN_OSM_SEARCH_RADIUS_KM = 0.5
+MAX_OSM_SEARCH_RADIUS_KM = 25.0
+
+# Relevant OSM tag filters for Overpass QL queries
+OSM_INDUSTRIAL_TAGS = [
+    '["landuse"="industrial"]',
+    '["industrial"]',
+    '["man_made"="works"]',
+    '["power"="plant"]',
+    '["power"="generator"]',
+    '["man_made"="chimney"]',
+    '["man_made"="flare"]',
+    '["man_made"="storage_tank"]',
+    '["amenity"="fuel"]',
+    '["landuse"="quarry"]',
+]
+
+# Source labels for provenance
+CONTEXT_SOURCE_OSM = "OpenStreetMap"
+CONTEXT_SOURCE_MANUAL = "Manual"
+CONTEXT_SOURCE_UNKNOWN = "Unknown"
+

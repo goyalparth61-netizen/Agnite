@@ -101,6 +101,23 @@ class HotspotFeatures(BaseHotspotFeatures):
     # Recurrence signal
     recurrence_signal: Literal["LOW", "MODERATE", "HIGH", "INSUFFICIENT_HISTORY"] = "INSUFFICIENT_HISTORY"
 
+    # Spatial / OpenStreetMap context features
+    industrial_feature_count: int = 0
+    industrial_within_1km: bool = False
+    industrial_within_5km: bool = False
+    industrial_within_10km: bool = False
+    count_within_1km: int = 0
+    count_within_5km: int = 0
+    count_within_10km: int = 0
+    nearest_industrial_name: Optional[str] = None
+    nearest_industrial_type: Optional[str] = None
+    power_infrastructure_nearby: bool = False
+    mapped_flare_nearby: bool = False
+    mapped_chimney_nearby: bool = False
+    context_confidence: float = Field(0.0, ge=0, le=100)
+    context_source: str = "unknown"
+    context_provenance: dict[str, str] = Field(default_factory=dict)
+
     # Future-ready placeholders for environmental/weather context
     temperature_c: Optional[float] = None
     humidity_percent: Optional[float] = None

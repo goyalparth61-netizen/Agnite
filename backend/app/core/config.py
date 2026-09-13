@@ -33,6 +33,14 @@ class Settings(BaseSettings):
     nasa_firms_map_key: str = ""
     nasa_cache_ttl_seconds: int = 600
 
+    # ── OpenStreetMap / Overpass ──────────────────────────────────────
+    overpass_api_url: str = "https://overpass-api.de/api/interpreter"
+    osm_cache_ttl_seconds: int = 21600  # 6 hours
+    osm_timeout_seconds: int = 15
+    osm_max_response_bytes: int = 5 * 1024 * 1024  # 5 MB
+    osm_user_agent: str = "AGNITE-Thermal-Intelligence/0.1.0 (SIH26162)"
+    enable_osm_context: bool = True
+
     # ── ML / Models ───────────────────────────────────────────────────
     enable_ml_classifier: bool = False
     enable_recurrence_model: bool = False

@@ -79,27 +79,78 @@ def generate_evidence(
         )
     )
 
-    # 5. Spatial context
-    ind_str = (
-        f"{context.industrial_distance_km:.1f} km"
+    # 5. Spatial context & industrial proximity
+    ind_dist = (
+        context.industrial_distance_km
         if context.industrial_distance_km is not None
-        else "unknown"
+        else features.industrial_distance_km
     )
+    if ind_dist is not None:
+        ind_str = f"{ind_dist:.1f} km"
+    else:
+        ind_str = "unmapped / unknown"
+
+    source_label = features.context_provenance.get("industrialDistanceKm", features.context_source)
+    detail_parts = [f"Infrastructure distance: {ind_str} (source: {source_label})."]
+    if features.nearest_industrial_type:
+        name_str = f" '{features.nearest_industrial_name}'" if features.nearest_industrial_name else ""
+        detail_parts.append(f"Nearest: {features.nearest_industrial_type}{name_str}.")
+    if features.context_confidence > 0:
+        detail_parts.append(f"OSM confidence: {features.context_confidence:.0f}%.")
+
     evidence.append(
         EvidenceItem(
             label="Spatial context",
             value=f"{context.land_cover}; industry {ind_str}",
-            detail="Supplied context; automatic OpenStreetMap/GIS integration planned for Phase 3.",
+            detail=" ".join(detail_parts),
         )
     )
 
-    # 6. Missing context alert if unsupplied
-    if context.land_cover == "unknown" or context.industrial_distance_km is None:
+    # 6. Industrial facility density
+    if features.industrial_feature_count > 0:
+        evidence.append(
+            EvidenceItem(
+                label="Industrial environment",
+                value=f"{features.industrial_feature_count} mapped facilities ({features.count_within_1km} within 1 km, {features.count_within_5km} within 5 km)",
+                detail="OpenStreetMap infrastructure objects detected within search radius.",
+            )
+        )
+
+    # 7. Specific thermal infrastructure (flares, chimneys)
+    if features.mapped_flare_nearby:
+        evidence.append(
+            EvidenceItem(
+                label="Thermal infrastructure",
+                value="Flare stack nearby",
+                detail="Mapped flare stack detected within search radius via OpenStreetMap.",
+            )
+        )
+    elif features.mapped_chimney_nearby:
+        evidence.append(
+            EvidenceItem(
+                label="Thermal infrastructure",
+                value="Industrial chimney nearby",
+                detail="Mapped industrial chimney / stack detected within search radius via OpenStreetMap.",
+            )
+        )
+
+    # 8. Context source & provenance card
+    if features.context_source == "osm" and features.context_confidence > 0:
+        evidence.append(
+            EvidenceItem(
+                label="Context source",
+                value=f"OpenStreetMap Overpass (Confidence: {features.context_confidence:.0f}%)",
+                detail="Automated spatial infrastructure context fetched via OpenStreetMap Overpass API.",
+            )
+        )
+
+    # 9. Missing context alert if unsupplied and unmapped
+    if context.land_cover == "unknown" and ind_dist is None:
         evidence.append(
             EvidenceItem(
                 label="Missing context",
                 value="Land-cover / industry unverified",
-                detail="Manual land cover or proximity has not been supplied, limiting classification specificity.",
+                detail="Manual land cover or proximity has not been supplied and no industrial infrastructure was found in OSM.",
             )
         )
 
