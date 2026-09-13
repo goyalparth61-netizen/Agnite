@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "feature_order": [
+    "current_frp",
+    "baseline_frp",
+    "log_baseline_ratio",
+    "frp_change_percent",
+    "persistence_score",
+    "unique_days",
+    "distinct_passes_count",
+    "thermal_variability",
+    "industrial_distance_km",
+    "forest_cover",
+    "industrial_cover",
+    "urban_cover",
+    "wind_kph"
+  ],
+  "feature_types": {
+    "current_frp": "float",
+    "baseline_frp": "float",
+    "log_baseline_ratio": "float",
+    "frp_change_percent": "float",
+    "persistence_score": "float",
+    "unique_days": "int",
+    "distinct_passes_count": "int",
+    "thermal_variability": "float",
+    "industrial_distance_km": "float",
+    "forest_cover": "float",
+    "industrial_cover": "float",
+    "urban_cover": "float",
+    "wind_kph": "float"
+  },
+  "classes": [
+    "Industrial Fire",
+    "Persistent Industrial Heat",
+    "Forest / Natural Fire",
+    "Other Thermal Anomaly"
+  ]
+}

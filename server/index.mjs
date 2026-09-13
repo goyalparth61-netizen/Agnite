@@ -1,3 +1,17 @@
+/**
+ * LEGACY AGNITE API SERVER
+ *
+ * This server has been replaced by the FastAPI backend in /backend.
+ * It is temporarily retained as a reference/fallback during migration.
+ *
+ * New backend:
+ *   backend/app/main.py
+ *
+ * Default development port:
+ *   8787
+ *
+ * Do NOT run both this Node server and FastAPI on port 8787 at the same time.
+ */
 import { createServer as createHttpServer } from 'node:http';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
