@@ -39,6 +39,19 @@ lat,lon,temp,date
 """
 
 
+@pytest.fixture(scope="session", autouse=True)
+def clean_test_db_session():
+    """Ensure database tables exist and are clean for test session."""
+    import app.db.models  # noqa: F401
+    from app.db.base import Base
+    from app.db.session import engine
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+
 @pytest.fixture
 def app():
     """Create a fresh FastAPI app for testing."""

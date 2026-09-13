@@ -22,6 +22,7 @@ from fastapi.responses import JSONResponse
 from app.api.routes import (
     alerts,
     analysis,
+    assistant,
     context,
     firms,
     health,
@@ -158,6 +159,9 @@ def create_app() -> FastAPI:
     app.include_router(watches.router, prefix="/api/v1")
     app.include_router(alerts.router, prefix="/api/v1")
     app.include_router(reports.router, prefix="/api/v1")
+
+    # Phase 5A AGNITE AI Assistant route
+    app.include_router(assistant.router, prefix="/api/v1")
 
     return app
 
