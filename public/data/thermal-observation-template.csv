@@ -1,0 +1,4 @@
+id,latitude,longitude,observed_at,frp,brightness,source
+synthetic-demo-nagpur-1,21.1466,79.0889,2026-09-13T06:00:00Z,8.5,321.2,demo
+synthetic-demo-nagpur-2,21.1490,79.0912,2026-09-13T07:00:00Z,12.4,329.6,demo
+synthetic-demo-surat-1,21.1702,72.8311,2026-09-13T06:30:00Z,3.2,308.4,demo

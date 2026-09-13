@@ -1,0 +1,227 @@
+/* The solar illustration stays behind the hero; cards retain opaque surfaces. */
+.solar-stage {
+  position: relative;
+  isolation: isolate;
+}
+.solar-stage > .hero {
+  position: relative;
+  z-index: 1;
+}
+.solar-stage .hero::before {
+  display: none;
+}
+.solar-background {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 4%, #49362424, transparent 65%), #101419;
+}
+.solar-body {
+  position: absolute;
+  width: clamp(730px, 80vw, 1180px);
+  aspect-ratio: 1;
+  left: calc(43% - 640px);
+  top: -400px;
+  opacity: 0.65;
+  transform: rotate(-18deg);
+}
+.solar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.solar-plasma {
+  transform-origin: 400px 400px;
+  animation: solar-plasma-turn 120s linear infinite;
+  opacity: 0.7;
+}
+.solar-prominences {
+  transform-origin: 400px 400px;
+  animation: solar-corona-drift 26s ease-in-out infinite alternate;
+}
+.solar-halo {
+  transform-origin: 400px 400px;
+  animation: solar-halo-breathe 14s ease-in-out infinite alternate;
+}
+.solar-starfield {
+  position: absolute;
+  inset: 0;
+  opacity: 0.34;
+  background-image:
+    radial-gradient(circle at 5% 17%, #d9c4a8 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 13% 62%, #8ea7c1 0 0.6px, transparent 1px),
+    radial-gradient(circle at 34% 8%, #cfb38d 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 52% 18%, #c3cbd1 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 69% 9%, #b8c8db 0 0.6px, transparent 1px),
+    radial-gradient(circle at 93% 42%, #adbccd 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 58% 79%, #9cabb8 0 0.6px, transparent 1px),
+    radial-gradient(circle at 88% 77%, #ccbda3 0 0.7px, transparent 1.2px);
+}
+.solar-horizon {
+  position: absolute;
+  width: 90%;
+  height: 220px;
+  right: -28%;
+  top: 24%;
+  background: radial-gradient(ellipse, #7b8da216, transparent 69%);
+  transform: rotate(-25deg);
+}
+.solar-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      #10141915,
+      transparent 25%,
+      #10141965 56%,
+      #101419 96%
+    ),
+    linear-gradient(90deg, #10141920, #10141968 47%, #1014191a);
+}
+.solar-control-wrap {
+  position: absolute;
+  z-index: 2;
+  top: 105px;
+  right: max(32px, calc((100vw - 1280px) / 2));
+}
+.solar-control {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  min-height: 30px;
+  background: #1b2025d9;
+  border: 1px solid #5c4b37;
+  border-radius: 5px;
+  color: #ccb596;
+}
+.solar-control span {
+  font: 7px var(--mono);
+  letter-spacing: 0.1em;
+}
+.solar-control:hover {
+  background: #30302bed;
+  border-color: #ad8857;
+  color: #f1d1a6;
+}
+.solar-control:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+.solar-still .solar-plasma,
+.solar-still .solar-prominences,
+.solar-still .solar-halo {
+  animation-play-state: paused;
+}
+@keyframes solar-plasma-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes solar-corona-drift {
+  from {
+    transform: rotate(-2deg) scale(0.995);
+    opacity: 0.5;
+  }
+  to {
+    transform: rotate(4deg) scale(1.025);
+    opacity: 0.95;
+  }
+}
+@keyframes solar-halo-breathe {
+  from {
+    opacity: 0.58;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.025);
+  }
+}
+@media (min-width: 1500px) {
+  .solar-body {
+    top: -435px;
+    left: calc(43% - 700px);
+  }
+}
+@media (max-width: 1100px) {
+  .solar-body {
+    left: -285px;
+    top: -340px;
+    width: 870px;
+    opacity: 0.58;
+  }
+}
+@media (max-width: 900px) {
+  .solar-body {
+    left: -215px;
+    top: -275px;
+    width: 880px;
+    opacity: 0.57;
+  }
+  .solar-scrim {
+    background:
+      linear-gradient(
+        180deg,
+        #1014191a,
+        #10141955 25%,
+        #101419e0 55%,
+        #101419 85%
+      ),
+      linear-gradient(90deg, #10141922, #10141980);
+  }
+  .solar-control-wrap {
+    top: 91px;
+    right: 32px;
+  }
+}
+@media (max-width: 560px) {
+  .solar-body {
+    width: 690px;
+    left: -220px;
+    top: -218px;
+    opacity: 0.59;
+  }
+  .solar-control-wrap {
+    top: 80px;
+    right: 18px;
+  }
+  .solar-control {
+    min-height: 26px;
+    padding: 5px 7px;
+    gap: 5px;
+  }
+  .solar-control span {
+    font-size: 6px;
+  }
+  .solar-control > svg {
+    width: 10px;
+    height: 10px;
+  }
+  .solar-prominences {
+    animation: none;
+    opacity: 0.8;
+  }
+  .solar-halo {
+    animation: none;
+    opacity: 0.7;
+  }
+  .solar-plasma {
+    animation-duration: 160s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .solar-plasma,
+  .solar-prominences,
+  .solar-halo {
+    animation: none !important;
+  }
+  .solar-control {
+    transition: none;
+  }
+}

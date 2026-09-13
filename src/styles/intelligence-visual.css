@@ -1,0 +1,926 @@
+.iv-card {
+  overflow: hidden;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border: 1px solid #35414c;
+  border-radius: 18px;
+  color: #eeeae2;
+  background: #171d24;
+  box-shadow: 0 24px 65px #00000024;
+}
+.iv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 21px;
+  border-bottom: 1px solid #2b3540;
+}
+.iv-header-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.iv-instrument-icon {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #42525f;
+  border-radius: 9px;
+  color: #a9c8e5;
+  background: #24313c;
+}
+.iv-header-title strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.iv-header-title div > span {
+  display: block;
+  margin-top: 5px;
+  color: #98a6b3;
+  font: 8px var(--mono);
+  letter-spacing: 0.12em;
+}
+.iv-demo {
+  padding: 5px 7px;
+  border: 1px solid #746043;
+  border-radius: 4px;
+  color: #e6b477;
+  font: 8px var(--mono);
+  letter-spacing: 0.1em;
+  background: #e6b47709;
+}
+.iv-map-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 32px 20px 12px;
+  background-color: #11171d;
+  background-image:
+    linear-gradient(#a3bad008 1px, transparent 1px),
+    linear-gradient(90deg, #a3bad008 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.iv-map-caption {
+  position: absolute;
+  left: 21px;
+  top: 17px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #a4b1bd;
+  font: 8px var(--mono);
+  letter-spacing: 0.065em;
+}
+.iv-map-caption > span:last-child {
+  color: #e6b477;
+  margin-left: 4px;
+}
+.iv-layer-key {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: #e6b477;
+  transform: rotate(45deg);
+}
+.iv-motion-control {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  top: 9px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #c9d7e3;
+  background: #1c2731;
+  border: 1px solid #384652;
+  border-radius: 6px;
+}
+.iv-motion-control:hover {
+  color: white;
+  background: #2a3947;
+}
+.iv-motion-control:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.iv-map-canvas {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 365px;
+  aspect-ratio: 600 / 620;
+  margin: 0 auto;
+}
+.iv-geography {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.iv-is-dragging .iv-geography,
+.iv-geography:active {
+  cursor: grabbing;
+}
+.iv-sea-label {
+  fill: #8595a2;
+  font: 10px var(--mono);
+  letter-spacing: 3px;
+  opacity: 0.65;
+}
+.iv-scan-beam {
+  animation: iv-satellite-scan 9s linear infinite;
+  pointer-events: none;
+}
+.iv-scan-satellite {
+  color: #c4d9ea;
+  animation: iv-satellite-scan 9s linear infinite;
+  pointer-events: none;
+}
+.iv-is-paused .iv-scan-beam,
+.iv-is-paused .iv-scan-satellite {
+  animation-play-state: paused;
+}
+@keyframes iv-satellite-scan {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(690px);
+    opacity: 0;
+  }
+}
+.iv-marker {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a4c5e3;
+  transform: translate(-50%, -50%);
+}
+.iv-marker-high {
+  color: #e6b477;
+}
+.iv-marker-selected {
+  z-index: 3;
+}
+.iv-marker-dot {
+  width: 7px;
+  height: 7px;
+  background: currentColor;
+  border: 1px solid #ffffff80;
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 4px #10141985;
+  transition: transform 0.2s;
+}
+.iv-marker:hover .iv-marker-dot {
+  transform: rotate(45deg) scale(1.35);
+}
+.iv-marker-reticle {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.iv-marker-selected .iv-marker-reticle {
+  opacity: 0.75;
+}
+.iv-marker-label {
+  position: absolute;
+  white-space: nowrap;
+  color: #c4d0d9;
+  font: 9px var(--mono);
+  text-shadow:
+    0 1px 4px #101419,
+    0 0 6px #101419;
+  pointer-events: none;
+}
+.iv-marker-selected .iv-marker-label {
+  color: #f0d4b2;
+}
+.iv-label-above .iv-marker-label {
+  bottom: 35px;
+}
+.iv-label-below .iv-marker-label {
+  top: 34px;
+}
+.iv-label-left .iv-marker-label {
+  right: 33px;
+}
+.iv-label-right .iv-marker-label {
+  left: 32px;
+}
+.iv-map-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  margin-top: 1px;
+  color: #8c9caa;
+  font: 7px var(--mono);
+  letter-spacing: 0.06em;
+}
+.iv-map-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.iv-map-footer i {
+  width: 4px;
+  height: 4px;
+  background: #92b9df;
+}
+.iv-observation {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 18px 21px;
+  border-top: 1px solid #34414c;
+  border-bottom: 1px solid #303b45;
+  background: #1b242c;
+}
+.iv-observation-copy {
+  min-width: 0;
+}
+.iv-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: #95a9b9;
+  font: 7px var(--mono);
+  letter-spacing: 0.08em;
+}
+.iv-observation-copy > strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.iv-observation-type {
+  display: block;
+  margin-top: 6px;
+  color: #b0c0ce;
+  font-size: 10px;
+}
+.iv-observation-coordinates {
+  display: block;
+  margin-top: 6px;
+  color: #8495a3;
+  font: 8px var(--mono);
+}
+.iv-risk {
+  flex: 0 0 79px;
+  align-self: center;
+  color: #92b9df;
+}
+.iv-risk-high {
+  color: #e6b477;
+}
+.iv-risk > span {
+  display: block;
+  font: 7px var(--mono);
+  letter-spacing: 0.07em;
+  color: #aeb9c2;
+}
+.iv-risk > strong {
+  display: block;
+  margin: 3px 0 5px;
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+.iv-risk small {
+  margin-left: 3px;
+  font-size: 10px;
+  color: #a4b2bd;
+}
+.iv-risk-track {
+  height: 3px;
+  background: #384450;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.iv-risk-track > span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+.iv-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 19px 21px 15px;
+  list-style: none;
+  gap: 12px;
+}
+.iv-pipeline > li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #a8c6e1;
+}
+.iv-pipeline > li > svg:first-child {
+  flex: 0 0 16px;
+}
+.iv-pipeline strong {
+  display: block;
+  font-size: 9px;
+  color: #d7dfe6;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.iv-pipeline span {
+  display: block;
+  margin-top: 4px;
+  color: #8e9da9;
+  font-size: 8px;
+}
+.iv-pipeline .iv-pipeline-arrow {
+  position: absolute;
+  right: -9px;
+  top: 7px;
+  color: #596e80;
+}
+.iv-disclaimer {
+  margin: 0;
+  padding: 0 21px 15px;
+  color: #91a0ad;
+  font-size: 8px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Animated map atmosphere sits behind geography and never intercepts input. */
+.iv-atmosphere {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%, #32475b24, transparent 75%);
+}
+.iv-atmosphere::before,
+.iv-atmosphere::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.iv-atmosphere::before {
+  inset: -25%;
+  background:
+    radial-gradient(ellipse at 24% 27%, #77a9d326, transparent 43%),
+    radial-gradient(ellipse at 77% 76%, #dba76817, transparent 38%);
+  animation: iv-atmosphere-drift 19s ease-in-out infinite alternate;
+}
+.iv-atmosphere::after {
+  inset: -44px;
+  background-image:
+    linear-gradient(#9ebed30c 1px, transparent 1px),
+    linear-gradient(90deg, #9ebed30c 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.65;
+  animation: iv-grid-drift 23s linear infinite;
+}
+@keyframes iv-atmosphere-drift {
+  from {
+    transform: translate(-5%, -4%) rotate(-7deg);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(7%, 5%) rotate(7deg);
+    opacity: 0.75;
+  }
+}
+@keyframes iv-grid-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(44px, 44px);
+  }
+}
+
+.iv-city-density {
+  fill: #a5c7e5;
+  opacity: 0.54;
+  pointer-events: none;
+}
+.iv-city-density circle {
+  fill: inherit;
+  stroke: none;
+}
+.iv-cluster {
+  cursor: pointer;
+  outline: none;
+}
+.iv-cluster > circle {
+  fill: #24384a;
+  stroke: #98b8d0;
+  stroke-width: 0.85px;
+  vector-effect: non-scaling-stroke;
+}
+.iv-cluster > text {
+  fill: #e1eaf1;
+  font: 12px var(--mono);
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.iv-cluster:hover > circle,
+.iv-cluster:focus-visible > circle,
+.iv-cluster-selected > circle,
+.iv-cluster[aria-pressed="true"] > circle {
+  fill: #66533d;
+  stroke: #f2c68e;
+  stroke-width: 1.5px;
+}
+.iv-cluster:hover > text,
+.iv-cluster:focus-visible > text {
+  fill: #fff3e1;
+}
+.iv-zoom-tools {
+  position: absolute;
+  z-index: 4;
+  right: 13px;
+  bottom: 39px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #4e6171;
+  border-radius: 7px;
+  background: #18232dec;
+  box-shadow: 0 4px 16px #00000025;
+}
+.iv-zoom-tools > button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d5e3ee;
+  font: 17px var(--mono);
+}
+.iv-zoom-tools > button + button,
+.iv-zoom-tools > button + span,
+.iv-zoom-tools > span + button {
+  border-top: 1px solid #3e5160;
+}
+.iv-zoom-tools > button:hover {
+  background: #304456;
+  color: #fff3e1;
+}
+.iv-zoom-tools > button:disabled {
+  color: #768692;
+  cursor: default;
+  background: transparent;
+}
+.iv-zoom-tools > span {
+  display: block;
+  padding: 7px 3px;
+  color: #adc0ce;
+  font: 8px var(--mono);
+  text-align: center;
+}
+
+.iv-search {
+  position: relative;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 20px;
+  padding: 0 11px;
+  min-height: 37px;
+  border: 1px solid #3e4c59;
+  border-radius: 7px;
+  background: #111920;
+  color: #8fa9be;
+}
+.iv-search:focus-within {
+  border-color: #a0bfd9;
+  box-shadow: 0 0 0 2px #92b9df14;
+}
+.iv-search > svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+.iv-search input {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #e1e8ee;
+  font:
+    10px Manrope,
+    Arial,
+    sans-serif;
+}
+.iv-search input::placeholder {
+  color: #95a7b7;
+  opacity: 1;
+}
+.iv-search > button,
+.iv-search-clear {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #c2cfdb;
+}
+.iv-search > button:hover {
+  background: #314456;
+}
+.iv-search-results {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 5px);
+  left: -1px;
+  right: -1px;
+  max-height: 223px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 5px;
+  margin: 0;
+  border: 1px solid #526575;
+  border-radius: 8px;
+  background: #1b2732;
+  box-shadow: 0 16px 30px #00000065;
+  list-style: none;
+}
+.iv-search-results > button,
+.iv-search-results li > button {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #e0e6eb;
+  text-align: left;
+  font-size: 10px;
+}
+.iv-search-results button:hover,
+.iv-search-results button:focus-visible,
+.iv-search-results [aria-selected="true"],
+.iv-search-results .is-active {
+  background: #334a5e;
+}
+.iv-search-results strong {
+  font-size: 10px;
+  font-weight: 600;
+}
+.iv-search-results span,
+.iv-search-results small {
+  color: #a7bbcc;
+  font-size: 9px;
+}
+.iv-search-results > p,
+.iv-search-results > span {
+  display: block;
+  margin: 0;
+  padding: 10px;
+  color: #b6c5d1;
+  font-size: 10px;
+}
+.iv-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 98px;
+  padding: 16px 21px;
+  border-top: 1px solid #435361;
+  border-bottom: 1px solid #303b45;
+  background: #1b262f;
+}
+.iv-readout > div {
+  min-width: 0;
+}
+.iv-readout > div:not(.iv-risk) > strong {
+  display: block;
+  color: #eeeae2;
+  font-size: 13px;
+  font-weight: 600;
+}
+.iv-readout .iv-risk {
+  flex-shrink: 0;
+}
+.iv-is-paused .iv-atmosphere::before,
+.iv-is-paused .iv-atmosphere::after {
+  animation-play-state: paused;
+}
+@media (min-width: 1500px) {
+  .iv-map-canvas {
+    max-width: 400px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 821px) {
+  .iv-map-surface {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .iv-pipeline {
+    gap: 9px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .iv-pipeline > li {
+    gap: 4px;
+  }
+  .iv-pipeline strong {
+    font-size: 8px;
+  }
+  .iv-pipeline .iv-pipeline-arrow {
+    right: -8px;
+    width: 8px;
+  }
+}
+@media (max-width: 430px) {
+  .iv-header {
+    padding: 15px;
+  }
+  .iv-search {
+    margin: 10px 14px;
+    min-height: 38px;
+  }
+  .iv-search input {
+    font-size: 11px;
+  }
+  .iv-map-canvas {
+    max-width: 340px;
+  }
+  .iv-readout {
+    min-height: 94px;
+    padding: 14px 15px;
+    gap: 10px;
+  }
+  .iv-zoom-tools {
+    right: 10px;
+    bottom: 34px;
+  }
+  .iv-zoom-tools > button {
+    width: 31px;
+    height: 33px;
+  }
+  .iv-header-title strong {
+    font-size: 12px;
+  }
+  .iv-header-title div > span {
+    font-size: 7px;
+  }
+  .iv-map-surface {
+    padding: 37px 10px 12px;
+  }
+  .iv-map-caption {
+    left: 15px;
+    font-size: 7px;
+  }
+  .iv-map-footer {
+    padding: 0 3px;
+    font-size: 6px;
+  }
+  .iv-marker-label {
+    font-size: 8px;
+  }
+  .iv-label-right .iv-marker-label {
+    left: 29px;
+  }
+  .iv-label-left .iv-marker-label {
+    right: 28px;
+  }
+  .iv-observation {
+    padding: 16px 15px;
+    gap: 10px;
+  }
+  .iv-kicker {
+    font-size: 6px;
+    letter-spacing: 0.025em;
+  }
+  .iv-observation-copy > strong {
+    font-size: 12px;
+  }
+  .iv-observation-type {
+    font-size: 9px;
+  }
+  .iv-observation-coordinates {
+    font-size: 7px;
+  }
+  .iv-risk {
+    flex-basis: 65px;
+  }
+  .iv-pipeline {
+    padding: 17px 15px 14px;
+    gap: 13px;
+  }
+  .iv-pipeline > li {
+    flex-direction: column;
+    gap: 7px;
+    align-items: flex-start;
+  }
+  .iv-pipeline .iv-pipeline-arrow {
+    top: 4px;
+    right: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iv-scan-beam,
+  .iv-scan-satellite {
+    animation: none;
+    transform: translateX(300px);
+    opacity: 0.45;
+  }
+  .iv-atmosphere::before,
+  .iv-atmosphere::after {
+    animation: none;
+  }
+  .iv-marker-dot,
+  .iv-marker-reticle,
+  .iv-risk-track > span {
+    transition: none;
+  }
+}
+
+/* Shared directory controls and SVG viewport behavior. */
+.iv-search-area {
+  position: relative;
+  z-index: 12;
+}
+.iv-search-area .iv-search-results {
+  top: calc(100% - 5px);
+  left: 20px;
+  right: 20px;
+  max-height: 280px;
+}
+.iv-search-status {
+  padding: 8px 9px;
+  font: 8px var(--mono);
+  color: #b3c5d4;
+  border-bottom: 1px solid #3a4b59;
+}
+.iv-search-results > button {
+  min-height: 43px;
+  align-items: center;
+}
+.iv-search-results > button > strong {
+  flex: 1;
+}
+.iv-search-results > button > span {
+  max-width: 45%;
+}
+.iv-search-pages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-top: 1px solid #3a4b59;
+}
+.iv-search-pages button {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  background: #283d4f;
+  color: #d4e2ed;
+  border: 1px solid #4a6174;
+  border-radius: 4px;
+}
+.iv-search-pages button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.iv-search-pages span {
+  font: 8px var(--mono);
+}
+.iv-map-canvas {
+  overflow: hidden;
+}
+.iv-geography {
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.iv-is-dragging .iv-geography {
+  cursor: grabbing;
+}
+.iv-cluster > circle:first-of-type {
+  fill: transparent;
+  stroke: none;
+}
+.iv-cluster > .iv-city-label {
+  text-anchor: start;
+  paint-order: stroke;
+  stroke: #17212d;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  fill: #d8e6f1;
+}
+.iv-single-city > circle:nth-of-type(2) {
+  fill: #b5d6f0;
+  stroke: #f1f8ff;
+}
+.iv-current-location text {
+  fill: #ffdda6;
+  font-family: var(--mono);
+  paint-order: stroke;
+  stroke: #17212d;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}
+.iv-map-help {
+  position: relative;
+  z-index: 2;
+  font-size: 8px;
+  color: #a6bacb;
+  margin: 10px 0 0;
+  text-align: center;
+}
+.iv-map-error {
+  position: relative;
+  z-index: 2;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #97744a;
+  background: #352a1f;
+  color: #ead0ac;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.iv-map-error button {
+  padding: 5px 10px;
+  border: 1px solid #b69569;
+  color: #f4dbbb;
+  background: #564029;
+  border-radius: 3px;
+  margin-left: 8px;
+}
+.iv-disclaimer a {
+  color: #b0d0ea;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+@media (max-width: 430px) {
+  .iv-search-area .iv-search-results {
+    left: 14px;
+    right: 14px;
+  }
+  .iv-map-help {
+    font-size: 7px;
+  }
+  .iv-map-footer {
+    gap: 10px;
+    line-height: 1.6;
+  }
+  .iv-map-footer > span:last-child {
+    text-align: right;
+  }
+  .iv-map-caption {
+    font-size: 6px;
+  }
+}

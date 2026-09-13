@@ -1,0 +1,127 @@
+{
+  "name": "AGNITE Synthetic Thermal Classifier",
+  "version": "0.1.0",
+  "algorithm": "multinomial logistic regression, L2 regularization",
+  "trainingSource": "Seeded synthetic archetypes only; no satellite or field labels",
+  "seed": 41731,
+  "featureNames": [
+    "log_current_frp",
+    "log_baseline_ratio",
+    "observed_day_coverage",
+    "industrial_proximity",
+    "forest_cover",
+    "industrial_cover",
+    "urban_cover",
+    "wind_scaled"
+  ],
+  "classes": [
+    "Industrial Fire",
+    "Persistent Industrial Heat",
+    "Forest / Natural Fire",
+    "Other Thermal Anomaly"
+  ],
+  "means": [
+    3.5489463891211424,
+    0.7396792215262092,
+    0.6269010644189278,
+    0.48744284898538154,
+    0.24461538461538462,
+    0.45615384615384613,
+    0.04923076923076923,
+    0.2998648963223901
+  ],
+  "scales": [
+    0.8911978947022171,
+    0.7983995851140322,
+    0.2469680937856125,
+    0.34079983422934307,
+    0.4298589282832823,
+    0.4980738045640419,
+    0.21634948715380858,
+    0.20381154493547576
+  ],
+  "weights": [
+    [
+      0.5912848627055843,
+      1.5117293178556832,
+      -0.33307529361665733,
+      0.7307823077746364,
+      -0.21252985427807472,
+      0.7657434737886035,
+      0.12359338260411087,
+      -0.028273668554207515
+    ],
+    [
+      -0.17878849956426499,
+      -1.300081253252183,
+      1.3129251225226775,
+      0.8741027404918664,
+      -0.005965188262968251,
+      0.5916113714406257,
+      0.029394925364848144,
+      -0.2855768873309054
+    ],
+    [
+      0.7822839253680944,
+      0.6254121117605965,
+      -0.011392440854688822,
+      -1.1643528208531153,
+      0.8828347227403919,
+      -0.3487299134078376,
+      0.10347827882398464,
+      0.436970624744562
+    ],
+    [
+      -1.1947802885094139,
+      -0.837060176364097,
+      -0.9684573880513292,
+      -0.4405322274133852,
+      -0.6643396801993476,
+      -1.0086249318213933,
+      -0.2564665867929433,
+      -0.1231200688594491
+    ]
+  ],
+  "bias": [
+    0.20171318743755498,
+    -0.11595114928440613,
+    -0.004255743358540367,
+    -0.08150629479460854
+  ],
+  "trainingCount": 2600,
+  "validationCount": 800,
+  "syntheticValidationAccuracy": 0.9375,
+  "confusionMatrix": [
+    [
+      177,
+      13,
+      8,
+      2
+    ],
+    [
+      3,
+      194,
+      2,
+      1
+    ],
+    [
+      13,
+      0,
+      185,
+      2
+    ],
+    [
+      2,
+      0,
+      4,
+      194
+    ]
+  ],
+  "limitations": [
+    "Trained and evaluated only on synthetic examples from the same generator.",
+    "No real-world validation, calibrated confidence, or operational fire identification.",
+    "Observation selection and cloud cover can bias historical comparisons and recurrence.",
+    "Land cover and industrial distance are supplied by the user, not independently verified.",
+    "Risk and what-if scenarios are separate heuristics, not model forecasts or fire probabilities."
+  ]
+}
