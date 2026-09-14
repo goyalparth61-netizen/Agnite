@@ -20,9 +20,15 @@ type HistoryLike = {
   currentFrp: number | null;
 };
 
-const DAY = 86_400_000;
+type ExtendedObservation = Observation & {
+  brightTi5?: number;
+  confidence?: number | string;
+  dayNight?: string;
+  hotspotType?: number;
+};
+
 const sigmoid = (value: number) => 1 / (1 + Math.exp(-Math.max(-40, Math.min(40, value))));
-const confidenceValue = (value: Observation['confidence']) => {
+const confidenceValue = (value: ExtendedObservation['confidence']) => {
   if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, Math.min(1, value / 100));
   const text = String(value ?? '').toLowerCase();
   if (text === 'h' || text === 'high') return 0.9;
@@ -31,7 +37,8 @@ const confidenceValue = (value: Observation['confidence']) => {
   return 0.5;
 };
 
-function features(selected: Observation, history: HistoryLike, _context: AnalysisContext) {
+function features(selectedBase: Observation, history: HistoryLike, _context: AnalysisContext) {
+  const selected = selectedBase as ExtendedObservation;
   const now = Date.parse(selected.observedAt);
   const prior = history.rows.filter(row => Date.parse(row.observedAt) < now);
   const inWindow = (hours: number) => prior.filter(row => Date.parse(row.observedAt) >= now - hours * 3_600_000);
