@@ -1,6 +1,6 @@
-import type { AnalysisContext, AnalysisResult, Observation } from './thermalEngine';
-import type { SavedReport } from './workspaceData';
-import { recurrenceModelStatus, recurrencePredictions } from './recurrenceModel';
+import type { AnalysisContext, AnalysisResult, Observation } from './thermalEngine.ts';
+import type { SavedReport } from './workspaceData.ts';
+import { recurrenceModelStatus, recurrencePredictions } from './recurrenceModel.ts';
 
 const DAY = 86400000;
 const mean = (v: number[]) => v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
