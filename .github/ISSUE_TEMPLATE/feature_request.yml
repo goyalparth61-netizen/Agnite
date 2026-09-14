@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a focused improvement to AGNITE
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user or technical problem does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest useful version of the feature.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Homepage / UX
+        - NASA FIRMS / data
+        - Map / GIS
+        - Classification / ML
+        - Risk / recurrence
+        - AGNITE AI
+        - Alerts / notifications
+        - Backend / API
+        - Deployment / reliability
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Data / validation requirements
+      description: If the feature changes model or risk behaviour, state the data source, target and evaluation needed.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: integrity
+    attributes:
+      label: Integrity checks
+      options:
+        - label: This proposal preserves clear distinction between thermal detections, inferred classifications and confirmed incidents.
+          required: true
+        - label: I will not rely on an unsupported accuracy/performance claim.
+          required: true
