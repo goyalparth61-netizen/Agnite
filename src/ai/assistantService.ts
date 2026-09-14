@@ -34,7 +34,7 @@ export function localAnswer(question: string, data: Intelligence): string {
   else if(/simple|simply/.test(q)) answer='The satellite detected unusual heat at this location. Heat can come from industry, vegetation or other sources, so the detection alone does not confirm a fire. '+(report?.summary??'More evidence is needed to classify this site reliably.');
   else if(/classif|why|risk/.test(q)) answer=classification;
   else if(/source|nasa/.test(q)) answer=`Source labels in location history: ${[...new Set(h.rows.map(r=>r.source))].join(', ')}. NASA FIRMS means satellite-derived thermal detections; imported/manual provenance is unverified; demo means SIMULATED DATA.`;
-  else if(generic) return `${generic}\n\nSelected hotspot context: ${header}.`;
+  else if(generic) return `${generic}\n\nSelected hotspot context: ${header}. Current selected FRP: ${s.frp.toFixed(1)} MW.`;
   else answer=`${history}\n\n${classification}\n\nEstimated risk windows: ${predictions.map(p=>`${p.window} ${p.riskScore}/100 (${p.level})`).join(', ')||'unavailable'}. These are unvalidated screening estimates. Ask me about history, classification, risk factors, prediction, FRP, FIRMS, persistent heat or precautions.`;
   return `${header}\n\n${answer}\n\n${data.limitations}`;
 }
