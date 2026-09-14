@@ -73,6 +73,9 @@ function estimateWithRecurrenceModel(selected: Observation | null, history: Loca
     const highPrecisionDecision = prediction.targetMet && prediction.score >= prediction.threshold;
     const missingEvidence = [
       history.distinctPasses < 3 ? 'Limited recent history at this location' : null,
+      context.landCover === 'unknown' ? 'Land cover unavailable' : null,
+      context.windKph === null ? 'Wind unavailable' : null,
+      context.industrialDistanceKm === null ? 'Industrial distance unavailable' : null,
       prediction.targetMet ? null : '99% validation-precision target was not achieved for this horizon',
       highPrecisionDecision ? null : 'Model score is below the conservative high-precision decision threshold',
       'Thermal recurrence is not the same as a verified fire incident',
