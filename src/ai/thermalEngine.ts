@@ -21,7 +21,16 @@ export interface AnalysisContext {
 export type ThermalClass = "Industrial Fire" | "Persistent Industrial Heat" | "Forest / Natural Fire" | "Other Thermal Anomaly";
 
 export interface AnalysisResult {
-  model: { name: string; version: string; trainingSource: string; syntheticValidationAccuracy: number; sampleCount: number; limitations: string[] };
+  model: {
+    name: string;
+    version: string;
+    trainingSource: string;
+    syntheticValidationAccuracy: number;
+    selectiveValidationPrecision: number | null;
+    selectiveValidationCoverage: number;
+    sampleCount: number;
+    limitations: string[];
+  };
   classification: ThermalClass | "Insufficient evidence";
   status: "classified" | "abstained";
   /** Relative softmax score, never a calibrated probability or confidence. */
@@ -98,6 +107,7 @@ export function analyzeObservations(observations: Observation[], context: Analys
   if (siteCenter !== undefined && (!siteCenter || !Number.isFinite(siteCenter.latitude) || Math.abs(siteCenter.latitude) > 90 || !Number.isFinite(siteCenter.longitude) || Math.abs(siteCenter.longitude) > 180)) throw new Error("Site center must contain a latitude from -90 to 90 and longitude from -180 to 180.");
   const warnings = [
     "Experimental classifier trained only on synthetic examples; no field validation. Model scores are not calibrated confidence or fire probabilities.",
+    "A conservative abstention gate targets at least 99% precision only on held-out synthetic examples by withholding ambiguous cases. This is not a 99% real-world accuracy claim.",
     "A thermal detection does not establish a fire cause. Verify observations and local conditions before operational decisions.",
   ];
   const seenIds = new Set<string>();
@@ -156,7 +166,11 @@ export function analyzeObservations(observations: Observation[], context: Analys
   const exponentials = logits.map((value) => Math.exp(value - maxLogit));
   const total = exponentials.reduce((sum, value) => sum + value, 0);
   const ranked = exponentials.map((value, index) => ({ index, label: model.classes[index], score: value / total })).sort((a, b) => b.score - a.score);
-  if (!reasons.length && (ranked[0].score < 0.5 || ranked[0].score - ranked[1].score < 0.14)) reasons.push("The synthetic model does not separate the candidate classes clearly enough.");
+  const selectiveScore = model.selectiveValidation.scoreThreshold;
+  const selectiveMargin = model.selectiveValidation.marginThreshold;
+  if (!reasons.length && (ranked[0].score < selectiveScore || ranked[0].score - ranked[1].score < selectiveMargin)) {
+    reasons.push(`Classification withheld by the conservative abstention gate (requires score ≥ ${selectiveScore.toFixed(3)} and top-class margin ≥ ${selectiveMargin.toFixed(3)}).`);
+  }
   const abstained = reasons.length > 0;
   warnings.push(...reasons);
   const contributions = abstained ? [] : features.map((value, j) => {
@@ -182,13 +196,22 @@ export function analyzeObservations(observations: Observation[], context: Analys
   const classification = abstained ? "Insufficient evidence" : ranked[0].label as ThermalClass;
   const baselineDescription = baselineFrp === null ? "No baseline passes older than 24h" : `${round(baselineFrp)} MW median of ${baselinePoints.length} earlier pass means`;
   return {
-    model: { name: model.name, version: model.version, trainingSource: model.trainingSource, syntheticValidationAccuracy: model.syntheticValidationAccuracy, sampleCount: model.trainingCount, limitations: model.limitations },
+    model: {
+      name: model.name,
+      version: model.version,
+      trainingSource: model.trainingSource,
+      syntheticValidationAccuracy: model.syntheticValidationAccuracy,
+      selectiveValidationPrecision: model.selectiveValidation.achievedPrecision,
+      selectiveValidationCoverage: model.selectiveValidation.coverage,
+      sampleCount: model.trainingCount,
+      limitations: model.limitations,
+    },
     classification,
     status: abstained ? "abstained" : "classified",
     modelScore: abstained ? null : ranked[0].score,
     scores: abstained ? [] : ranked.map(({ label, score }) => ({ label, score })),
     risk: { index: riskIndex, level: riskIndex >= 80 ? "Critical" : riskIndex >= 60 ? "High" : riskIndex >= 35 ? "Moderate" : "Low", method: "Heuristic 0–100 screening index: 50% log FRP intensity + 30% positive baseline change + 10% repeated-day support + 10% supplied forest wind. Not a fire probability; missing baseline/weather terms contribute zero." },
-    summary: abstained ? "Cause classification withheld: additional history or verified context is needed. The screening index summarizes only the supplied measurements." : `${classification} is the strongest synthetic-model pattern. This experimental label does not establish a real fire cause.`,
+    summary: abstained ? "Cause classification withheld: additional history, verified context, or stronger model separation is needed. The screening index summarizes only the supplied measurements." : `${classification} is the strongest synthetic-model pattern above the conservative abstention gate. This experimental label does not establish a real fire cause.`,
     evidence: [
       { label: "Current thermal signal", value: `${round(currentFrp)} MW`, detail: "Mean FRP per detection at the latest timestamp within 5 km; not total incident energy." },
       { label: "Historical baseline", value: baselineFrp === null ? "Unavailable" : `${round(baselineFrp)} MW`, detail: baselineDescription },
