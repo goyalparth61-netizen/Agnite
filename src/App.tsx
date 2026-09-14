@@ -31,13 +31,13 @@ function routeFromHash(hash: string): AppRoute {
   return "home";
 }
 
-const pageMap: Record<Exclude<AppRoute, "home" | "workspace" | "email-alerts">, React.LazyExoticComponent<() => JSX.Element>> = {
+const pageMap = {
   platform: Platform,
   intelligence: Intelligence,
   risk: Risk,
   learn: Learn,
   about: About,
-};
+} as const;
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => routeFromHash(window.location.hash));
