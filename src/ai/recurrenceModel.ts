@@ -1,5 +1,5 @@
-import artifact from './recurrence-model.json';
-import type { AnalysisContext, Observation } from './thermalEngine';
+import artifact from './recurrence-model.json' with { type: 'json' };
+import type { AnalysisContext, Observation } from './thermalEngine.ts';
 
 export type RecurrenceWindow = '24h' | '48h' | '7d';
 
