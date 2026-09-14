@@ -174,52 +174,85 @@ def load_inputs(paths: Iterable[str]) -> pd.DataFrame:
     return grouped.sort_values(["cell", "timestamp"]).reset_index(drop=True)
 
 
-def count_since(times: np.ndarray, current: np.datetime64, hours: int) -> int:
-    start = current - np.timedelta64(hours, "h")
-    return int(((times >= start) & (times < current)).sum())
-
-
 def build_examples(events: pd.DataFrame) -> pd.DataFrame:
-    rows: list[dict[str, object]] = []
-    for cell, group in events.groupby("cell", sort=False):
+    """Create temporal examples without repeatedly scanning a cell's full history.
+
+    The original implementation built boolean masks across every event for every
+    event in a cell, which becomes very slow on multi-year FIRMS histories. This
+    version uses binary-search window boundaries plus FRP prefix sums, preserving
+    the same feature/label definitions while making the expensive history-window
+    operations roughly O(n log n) instead of O(n^2) per cell.
+    """
+    columns = ["cell", "timestamp", *FEATURES, *(f"label_{name}" for name in HORIZONS_HOURS)]
+    rows: list[tuple[object, ...]] = []
+    grouped = events.groupby("cell", sort=False)
+    cell_count = events["cell"].nunique()
+    print(f"Building recurrence features from {len(events):,} grouped FIRMS events across {cell_count:,} cells...")
+
+    for cell_index, (cell, group) in enumerate(grouped, start=1):
         group = group.sort_values("timestamp").reset_index(drop=True)
+        n = len(group)
         times = group["timestamp"].to_numpy(dtype="datetime64[ns]")
+        days = times.astype("datetime64[D]")
         frps = group["frp"].to_numpy(float)
-        for i in range(len(group)):
+        bright4 = group["bright4"].to_numpy(float)
+        bright5 = group["bright5"].to_numpy(float)
+        confidence = group["confidence_numeric"].to_numpy(float)
+        is_night = group["is_night"].to_numpy(float)
+        static_source = group["static_source_type"].to_numpy(float)
+        prefix_frp = np.concatenate(([0.0], np.cumsum(frps, dtype=float)))
+
+        for i in range(n):
             current = times[i]
-            prior_mask_7d = (times < current) & (times >= current - np.timedelta64(7, "D"))
-            prior_mask_30d = (times < current) & (times >= current - np.timedelta64(30, "D"))
-            prior7 = frps[prior_mask_7d]
-            prior30 = frps[prior_mask_30d]
-            mean7 = float(prior7.mean()) if len(prior7) else float(frps[i])
-            mean30 = float(prior30.mean()) if len(prior30) else mean7
-            previous_gap = (
-                float((current - times[i - 1]) / np.timedelta64(1, "h")) if i else 24.0 * 30
+            idx_24h = int(np.searchsorted(times, current - np.timedelta64(24, "h"), side="left"))
+            idx_7d = int(np.searchsorted(times, current - np.timedelta64(7, "D"), side="left"))
+            idx_30d = int(np.searchsorted(times, current - np.timedelta64(30, "D"), side="left"))
+
+            count_7d = i - idx_7d
+            count_30d = i - idx_30d
+            mean7 = (
+                float((prefix_frp[i] - prefix_frp[idx_7d]) / count_7d)
+                if count_7d
+                else float(frps[i])
             )
-            prior30_times = times[prior_mask_30d]
-            distinct_days = len({str(value)[:10] for value in prior30_times.astype("datetime64[D]").astype(str)})
-            row = group.iloc[i]
-            features = {
-                "log_current_frp": math.log1p(max(0.0, float(row.frp))),
-                "log_frp_vs_7d_mean": math.log((float(row.frp) + 1.0) / (mean7 + 1.0)),
-                "log_frp_vs_30d_mean": math.log((float(row.frp) + 1.0) / (mean30 + 1.0)),
-                "detections_24h": count_since(times[:i], current, 24),
-                "detections_7d": count_since(times[:i], current, 24 * 7),
-                "detections_30d": count_since(times[:i], current, 24 * 30),
-                "distinct_days_30d": distinct_days,
-                "hours_since_previous": min(previous_gap, 24.0 * 30) / 24.0,
-                "bright_ti4_scaled": 0.0 if pd.isna(row.bright4) else max(0.0, min(500.0, float(row.bright4))) / 500.0,
-                "bright_ti5_scaled": 0.0 if pd.isna(row.bright5) else max(0.0, min(500.0, float(row.bright5))) / 500.0,
-                "confidence_scaled": float(row.confidence_numeric),
-                "is_night": float(row.is_night),
-                "static_source_type": float(row.static_source_type),
-            }
-            future = times[i + 1 :]
-            labels = {}
-            for name, hours in HORIZONS_HOURS.items():
-                labels[f"label_{name}"] = int(len(future) > 0 and future[0] <= current + np.timedelta64(hours, "h"))
-            rows.append({"cell": cell, "timestamp": pd.Timestamp(current, tz="UTC"), **features, **labels})
-    examples = pd.DataFrame(rows)
+            mean30 = (
+                float((prefix_frp[i] - prefix_frp[idx_30d]) / count_30d)
+                if count_30d
+                else mean7
+            )
+            previous_gap = (
+                float((current - times[i - 1]) / np.timedelta64(1, "h"))
+                if i
+                else 24.0 * 30
+            )
+            distinct_days = int(np.unique(days[idx_30d:i]).size) if count_30d else 0
+            next_time = times[i + 1] if i + 1 < n else None
+
+            feature_values = (
+                math.log1p(max(0.0, float(frps[i]))),
+                math.log((float(frps[i]) + 1.0) / (mean7 + 1.0)),
+                math.log((float(frps[i]) + 1.0) / (mean30 + 1.0)),
+                i - idx_24h,
+                count_7d,
+                count_30d,
+                distinct_days,
+                min(previous_gap, 24.0 * 30) / 24.0,
+                0.0 if np.isnan(bright4[i]) else max(0.0, min(500.0, float(bright4[i]))) / 500.0,
+                0.0 if np.isnan(bright5[i]) else max(0.0, min(500.0, float(bright5[i]))) / 500.0,
+                float(confidence[i]),
+                float(is_night[i]),
+                float(static_source[i]),
+            )
+            labels = tuple(
+                int(next_time is not None and next_time <= current + np.timedelta64(hours, "h"))
+                for hours in HORIZONS_HOURS.values()
+            )
+            rows.append((cell, pd.Timestamp(current, tz="UTC"), *feature_values, *labels))
+
+        if cell_index % 10000 == 0 or cell_index == cell_count:
+            print(f"  processed {cell_index:,}/{cell_count:,} cells; {len(rows):,} examples")
+
+    examples = pd.DataFrame.from_records(rows, columns=columns)
     if len(examples) < 500:
         raise ValueError(f"Need at least 500 temporal examples; only {len(examples)} were created.")
     return examples.sort_values("timestamp").reset_index(drop=True)
