@@ -1,4 +1,10 @@
-# AGNITE — AI-Powered Thermal Intelligence
+<p align="center">
+  <img src="public/brand/agnite-logo.png" alt="AGNITE logo" width="190" />
+</p>
+
+<h1 align="center">AGNITE — AI-Powered Thermal Intelligence</h1>
+
+<p align="center"><strong>Detect • Understand • Predict • Explain • Act</strong></p>
 
 [![AGNITE CI](https://github.com/goyalparth61-netizen/Agnite/actions/workflows/ci.yml/badge.svg)](https://github.com/goyalparth61-netizen/Agnite/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
