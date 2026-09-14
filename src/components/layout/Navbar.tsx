@@ -44,20 +44,16 @@ export default function Navbar() {
     <header className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="nav-inner">
         <a href="#/" className="brand" aria-label="AGNITE home">
-          <img
-            src={`${import.meta.env.BASE_URL}brand/agnite-logo.png`}
-            alt=""
-            width={40}
-            height={40}
-            decoding="async"
-            style={{
-              width: 40,
-              height: 40,
-              objectFit: "contain",
-              borderRadius: 10,
-              filter: "drop-shadow(0 0 10px rgba(230,180,119,.24))",
-            }}
-          />
+          <span className="brand-logo-shell" aria-hidden="true">
+            <img
+              src={`${import.meta.env.BASE_URL}brand/agnite-logo.png`}
+              alt=""
+              width={48}
+              height={48}
+              decoding="async"
+              className="brand-logo"
+            />
+          </span>
           <span>
             <strong>AGNITE</strong>
             <small>AI-Powered Thermal Intelligence</small>
@@ -75,7 +71,7 @@ export default function Navbar() {
         <div className="nav-actions">
           <StatusBadge />
           <a className="button small secondary" href="#/workspace">
-            Dashboard <ArrowUpRight size={14} />
+            Launch Dashboard <ArrowUpRight size={14} />
           </a>
         </div>
 
