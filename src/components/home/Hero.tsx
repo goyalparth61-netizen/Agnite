@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import IntelligenceVisual from "./IntelligenceVisual";
+
 export default function Hero() {
   const reduced = useReducedMotion();
   return (
@@ -17,37 +18,49 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
+        <div className="hero-brand-lockup">
+          <span className="hero-logo-shell" aria-hidden="true">
+            <img
+              src={`${import.meta.env.BASE_URL}brand/agnite-logo.png`}
+              alt=""
+              width={92}
+              height={92}
+              className="hero-logo"
+            />
+          </span>
+          <div>
+            <strong>AGNITE</strong>
+            <small>AI-Powered Thermal Intelligence for India</small>
+          </div>
+        </div>
+
         <span className="eyebrow">
           <span className="short-line" /> SMART INDIA HACKATHON 2026 / SIH26162
         </span>
         <h1>
-          TURN THERMAL
+          SEE THE HOTSPOT.
           <br />
-          ANOMALIES INTO
+          UNDERSTAND <span>WHY.</span>
           <br />
-          <span>
-            ACTIONABLE
-            <br />
-            INTELLIGENCE.
-          </span>
+          KNOW WHAT TO DO NEXT.
         </h1>
         <p>
-          AGNITE combines satellite thermal observations, spatial context,
-          historical behaviour and explainable AI to detect, classify and
-          understand potential fire events and persistent thermal sources.
+          Pick a thermal hotspot on the India map. AGNITE checks its NASA FIRMS signal,
+          recent history, nearby context and recurrence pattern, then shows a classification,
+          24h / 48h / 7-day thermal-recurrence outlook, missing evidence and an explainable AI summary.
         </p>
         <div className="actions">
-          <a className="button primary" href="#/workspace?tab=analysis">
-            Analyze a Hotspot <ArrowUpRight size={17} />
+          <a className="button primary" href="#/workspace?tab=feed">
+            Start with Live Map <ArrowUpRight size={17} />
           </a>
-          <a className="button secondary" href="#/platform">
-            Explore Platform <ArrowRight size={17} />
+          <a className="button secondary" href="#how-agnite-checks">
+            See How It Checks <ArrowRight size={17} />
           </a>
         </div>
         <div className="trust-strip">
-          <span><Satellite /> Satellite Intelligence</span>
-          <span><BrainCircuit /> Explainable AI</span>
-          <span><ShieldCheck /> Risk Intelligence</span>
+          <span><Satellite /> NASA FIRMS observations</span>
+          <span><BrainCircuit /> Explainable AGNITE AI</span>
+          <span><ShieldCheck /> Evidence-first risk screening</span>
         </div>
       </motion.div>
       <motion.div
@@ -58,8 +71,8 @@ export default function Hero() {
         <IntelligenceVisual />
       </motion.div>
       <div className="hero-caption">
-        <span>SEE THE SIGNAL. UNDERSTAND THE CONTEXT.</span>
-        <span>START WITH THE DASHBOARD OR EXPLORE THE PLATFORM.</span>
+        <span>PAST → PRESENT → UNDERSTAND → PREDICT → EXPLAIN → ACT</span>
+        <span>THERMAL RECURRENCE ≠ CONFIRMED FIRE</span>
       </div>
     </section>
   );
