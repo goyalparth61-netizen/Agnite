@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Flame, Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
 import StatusBadge from "../common/StatusBadge";
 
 const links = [
@@ -44,7 +44,20 @@ export default function Navbar() {
     <header className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="nav-inner">
         <a href="#/" className="brand" aria-label="AGNITE home">
-          <Flame className="brand-mark" size={30} />
+          <img
+            src={`${import.meta.env.BASE_URL}brand/agnite-logo.png`}
+            alt=""
+            width={40}
+            height={40}
+            decoding="async"
+            style={{
+              width: 40,
+              height: 40,
+              objectFit: "contain",
+              borderRadius: 10,
+              filter: "drop-shadow(0 0 10px rgba(230,180,119,.24))",
+            }}
+          />
           <span>
             <strong>AGNITE</strong>
             <small>AI-Powered Thermal Intelligence</small>
