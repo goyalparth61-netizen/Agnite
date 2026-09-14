@@ -20,7 +20,7 @@ const observation = (id = 'one', daysAgo = 0, frp = 20, extras = {}) => ({
   observedAt: new Date(latest - daysAgo * DAY).toISOString(), frp, source: 'imported', ...extras,
 });
 const history = (values, ages = values.map((_, index) => values.length - 1 - index)) => values.map((value, index) => observation(`pass-${index}`, ages[index], value));
-const rising = history([18, 21, 19, 20, 55, 88]);
+const rising = history([18, 21, 19, 20, 55, 100]);
 
 assert.throws(() => validateObservations([]), /at least one/);
 assert.throws(() => validateObservations(null), /at least one/);
@@ -66,7 +66,7 @@ assertAbstained(analyzeObservations(history([10, 20, 30, 40], [3, 1, 0.5, 0]), c
 assertAbstained(analyzeObservations(rising, { ...context, landCover: 'unknown' }), /Land cover and industrial distance/);
 assertAbstained(analyzeObservations(rising, { ...context, industrialDistanceKm: null }), /Land cover and industrial distance/);
 assertAbstained(analyzeObservations(history([1, 1, 1, 1, 1, 1_000_000]), context), /outside this synthetic model/);
-assertAbstained(analyzeObservations(history([2, 2, 2, 5], [6, 4, 2, 0]), context), /does not separate the candidate classes/);
+assertAbstained(analyzeObservations(history([2, 2, 2, 5], [6, 4, 2, 0]), context), /conservative abstention gate/);
 const noWeather = analyzeObservations(rising, { ...context, windKph: null });
 assert.ok(noWeather.warnings.some((warning) => /Wind is unknown/.test(warning)));
 
@@ -202,5 +202,7 @@ assert.equal(model.confusionMatrix.reduce((sum, row, index) => sum + row[index],
 assert.ok(model.scales.every((value) => Number.isFinite(value) && value > 0));
 assert.equal(model.weights.length, model.classes.length);
 assert.ok(model.weights.every((row) => row.length === model.featureNames.length));
+assert.ok(model.selectiveValidation.achievedPrecision >= model.selectiveValidation.targetPrecision);
+assert.ok(model.selectiveValidation.coverage > 0 && model.selectiveValidation.coverage <= 1);
 
-console.log('PASS: strict engine validation, abstention, four synthetic archetypes, deterministic analysis, duplicate/spatial/time filtering, pass means, source disclosures, finite outputs, and bounded heuristic scenarios.');
+console.log('PASS: strict engine validation, conservative abstention, four synthetic archetypes, deterministic analysis, duplicate/spatial/time filtering, pass means, source disclosures, finite outputs, and bounded heuristic scenarios.');
