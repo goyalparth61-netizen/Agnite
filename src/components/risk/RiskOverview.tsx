@@ -65,9 +65,12 @@ export function SafetyPrecautions({ level = "LOW" }: { level?: string }) {
   );
 }
 export default function RiskOverview({ data }: { data?: Intelligence }) {
+  const learned = data?.predictionMode === "real-recurrence-model";
   return (
     <div className="risk-overview">
-      <span className="eyebrow">RISK ESTIMATE / SIMULATION</span>
+      <span className="eyebrow">
+        {learned ? "REAL-DATA THERMAL RECURRENCE MODEL" : "RISK ESTIMATE / SIMULATION"}
+      </span>
       <h2>From signal to response.</h2>
       {data?.selected ? (
         <>
@@ -77,7 +80,14 @@ export default function RiskOverview({ data }: { data?: Intelligence }) {
             at this acquisition. Classification:{" "}
             {data.report?.classification ?? "Run site analysis"}.
           </p>
-          <span className="evidence-chip">Trend: {data.history.trend}</span>
+          <div className="actions">
+            <span className="evidence-chip">Trend: {data.history.trend}</span>
+            <span className="evidence-chip">
+              {learned
+                ? `Prediction model: ${data.recurrenceModel.name} v${data.recurrenceModel.version}`
+                : "Prediction model: transparent heuristic fallback"}
+            </span>
+          </div>
           <div className="intel-grid">
             {data.predictions.map((p) => (
               <Reveal key={p.window}>
@@ -93,7 +103,7 @@ export default function RiskOverview({ data }: { data?: Intelligence }) {
                   <div
                     className="risk-meter"
                     role="meter"
-                    aria-label={`${p.window} heuristic risk index`}
+                    aria-label={`${p.window} ${learned ? "thermal recurrence model score" : "heuristic risk index"}`}
                     aria-valuenow={p.riskScore}
                     aria-valuemin={0}
                     aria-valuemax={100}
@@ -139,8 +149,8 @@ export default function RiskOverview({ data }: { data?: Intelligence }) {
         <>
           <p>
             Compare historical evidence and explore 24-hour, 48-hour and 7-day
-            scenarios for a selected hotspot. Scores are heuristic indices, not
-            probabilities of fire.
+            scenarios for a selected hotspot. Until a real historical recurrence
+            artifact is trained, AGNITE uses a transparent heuristic simulation.
           </p>
           <div className="intel-grid risk-legend">
             {Object.entries(responses).map(([level, response]) => (
