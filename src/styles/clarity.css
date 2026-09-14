@@ -21,6 +21,25 @@
   filter: drop-shadow(0 0 10px rgba(230, 180, 119, 0.3));
 }
 
+.ws-topbar .brand > svg {
+  display: none;
+}
+
+.ws-topbar .brand::before {
+  content: "";
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 13px;
+  border: 1px solid rgba(230, 180, 119, 0.4);
+  background-color: #101419;
+  background-image: url('/brand/agnite-logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 42px 42px;
+  box-shadow: 0 0 24px rgba(230, 180, 119, 0.13);
+}
+
 .hero-brand-lockup {
   display: inline-flex;
   align-items: center;
