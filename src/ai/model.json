@@ -1,6 +1,6 @@
 {
   "name": "AGNITE Synthetic Thermal Classifier",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "algorithm": "multinomial logistic regression, L2 regularization",
   "trainingSource": "Seeded synthetic archetypes only; no satellite or field labels",
   "seed": 41731,
@@ -91,6 +91,15 @@
   "trainingCount": 2600,
   "validationCount": 800,
   "syntheticValidationAccuracy": 0.9375,
+  "selectiveValidation": {
+    "targetPrecision": 0.99,
+    "achievedPrecision": 0.9907550077041603,
+    "coverage": 0.81125,
+    "scoreThreshold": 0.805,
+    "marginThreshold": 0.1,
+    "selectedCount": 649,
+    "validatedOn": "synthetic held-out examples only"
+  },
   "confusionMatrix": [
     [
       177,
@@ -119,6 +128,7 @@
   ],
   "limitations": [
     "Trained and evaluated only on synthetic examples from the same generator.",
+    "The selective gate exceeds 99% precision on synthetic validation by abstaining on ambiguous cases; this is not real-world accuracy.",
     "No real-world validation, calibrated confidence, or operational fire identification.",
     "Observation selection and cloud cover can bias historical comparisons and recurrence.",
     "Land cover and industrial distance are supplied by the user, not independently verified.",
