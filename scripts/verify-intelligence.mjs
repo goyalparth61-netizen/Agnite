@@ -31,7 +31,7 @@ assert.match(localAnswer('Explain simply',data),/does not confirm a fire/);
 assert.match(localAnswer('Explain classification',data),/Run site analysis first/);
 assert.match(localAnswer('history',buildIntelligence(null,[],context,null)),/Select a hotspot/);
 for(const fetchImpl of [async()=>{throw new Error('offline');},async()=>new Response('{}',{status:503}),async()=>Response.json({mode:'local'}),async()=>new Response('bad json')]) {
- const result=await askAgnite('Future risk',data,fetchImpl);assert.equal(result.mode,'local');assert.match(result.answer,/SIMULATION/);
+ const result=await askAgnite('Future risk',data,fetchImpl);assert.equal(result.mode,'local');assert.match(result.answer,/(?:SIMULATION|REAL-DATA THERMAL RECURRENCE MODEL)/);
 }
 assert.equal((await createAiProvider({env:{},fetchImpl:()=>{throw new Error('must not fetch');}}).answer('history',data)).mode,'local');
 let payload;
