@@ -1,11 +1,24 @@
-import { Flame } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="footer container">
       <div className="footer-main">
         <div>
-          <a className="brand" href="#/">
-            <Flame className="brand-mark" size={30} />
+          <a className="brand" href="#/" aria-label="AGNITE home">
+            <img
+              src={`${import.meta.env.BASE_URL}brand/agnite-logo.png`}
+              alt=""
+              width={44}
+              height={44}
+              loading="lazy"
+              decoding="async"
+              style={{
+                width: 44,
+                height: 44,
+                objectFit: "contain",
+                borderRadius: 12,
+                filter: "drop-shadow(0 0 12px rgba(230,180,119,.22))",
+              }}
+            />
             <span>
               <strong>AGNITE</strong>
               <small>AI-Powered Thermal Intelligence</small>
