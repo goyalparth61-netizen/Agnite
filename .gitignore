@@ -14,6 +14,13 @@ vite.config.d.ts
 *.log
 npm-debug.log*
 
+# Local NASA FIRMS training data can be large and should never be committed.
+data/firms/
+
+# Python cache/build artifacts.
+__pycache__/
+*.py[cod]
+
 .vscode/
 .idea/
 .DS_Store
