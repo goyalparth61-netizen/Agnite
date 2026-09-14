@@ -5,6 +5,7 @@ import App from "./App";
 import "./styles/global.css";
 import "./styles/completion.css";
 import "./styles/pages.css";
+import "./styles/clarity.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
