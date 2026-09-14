@@ -11,9 +11,3 @@ services:
         value: 22
       - key: HOST
         value: 0.0.0.0
-      - key: AGNITE_ALERT_STORE
-        value: /var/data/agnite-alerts.json
-    disk:
-      name: agnite-data
-      mountPath: /var/data
-      sizeGB: 1
