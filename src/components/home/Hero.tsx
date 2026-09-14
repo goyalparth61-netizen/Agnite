@@ -38,22 +38,16 @@ export default function Hero() {
         </p>
         <div className="actions">
           <a className="button primary" href="#/workspace?tab=analysis">
-            Explore Intelligence <ArrowUpRight size={17} />
+            Analyze a Hotspot <ArrowUpRight size={17} />
           </a>
-          <a className="button secondary" href="#/workspace">
-            View GIS Platform <ArrowRight size={17} />
+          <a className="button secondary" href="#/platform">
+            Explore Platform <ArrowRight size={17} />
           </a>
         </div>
         <div className="trust-strip">
-          <span>
-            <Satellite /> Satellite Intelligence
-          </span>
-          <span>
-            <BrainCircuit /> Explainable AI
-          </span>
-          <span>
-            <ShieldCheck /> Risk Intelligence
-          </span>
+          <span><Satellite /> Satellite Intelligence</span>
+          <span><BrainCircuit /> Explainable AI</span>
+          <span><ShieldCheck /> Risk Intelligence</span>
         </div>
       </motion.div>
       <motion.div
@@ -65,7 +59,7 @@ export default function Hero() {
       </motion.div>
       <div className="hero-caption">
         <span>SEE THE SIGNAL. UNDERSTAND THE CONTEXT.</span>
-        <span>SCROLL TO EXPLORE</span>
+        <span>START WITH THE DASHBOARD OR EXPLORE THE PLATFORM.</span>
       </div>
     </section>
   );
