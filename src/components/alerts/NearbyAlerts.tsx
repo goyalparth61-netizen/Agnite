@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Observation } from "../../ai/thermalEngine";
 import { acquisitionStatus, nearbyCandidates } from "../../ai/decisionSupport";
 import { buildIntelligence, sourceLabel } from "../../ai/intelligence";
+import EmailSubscription from "./EmailSubscription";
+import {alertImage} from '../../ai/alertImage';
+import {downloadText} from '../../ai/workspaceData';
 import { RiskLevelBadge } from "../risk/RiskOverview";
 export default function NearbyAlerts({
   observations = [],
@@ -22,7 +25,6 @@ export default function NearbyAlerts({
   const [pending, setPending] = useState(false);
   const [radius, setRadius] = useState(25);
   const [threshold, setThreshold] = useState("MODERATE");
-  const [saved, setSaved] = useState(false);
   const [maxAge, setMaxAge] = useState("all");
   const [now, setNow] = useState(() => Date.now());
   const request = useRef(0);
@@ -102,6 +104,7 @@ export default function NearbyAlerts({
         >
           {pending ? "Locating…" : "Enable Nearby Alerts"}
         </button>
+        <form className="alert-form" onSubmit={e=>{e.preventDefault();const values=new FormData(e.currentTarget);request.current++;setPending(false);setLocation({latitude:Number(values.get('latitude')),longitude:Number(values.get('longitude'))});setStatus('Selected coordinates stay in this session unless you subscribe to email alerts.');}}><label>Choose latitude instead<input name="latitude" type="number" required min={6} max={38} step="any" placeholder="21.1466"/></label><label>Longitude<input name="longitude" type="number" required min={67} max={99} step="any" placeholder="79.0889"/></label><button className="button secondary">Use these coordinates</button></form>
         <label className="alert-age-filter">
           Acquisition window
           <select value={maxAge} onChange={(e) => setMaxAge(e.target.value)}>
@@ -168,6 +171,7 @@ export default function NearbyAlerts({
                       Thermal detection within your radius. Estimate uses
                       unknown land cover, industry and wind.
                     </small>
+                    <button className="button secondary" onClick={()=>downloadText('agnite-thermal-alert.svg',alertImage(row,distance,risk.riskScore,risk.level),'image/svg+xml')}>Download alert image</button>
                     {onInspect && (
                       <button
                         className="button secondary"
@@ -194,64 +198,11 @@ export default function NearbyAlerts({
           </p>
         )}
         <p>
-          No background monitoring or automatic emergency alerts. Estimates
-          reflect loaded satellite passes.
+          These in-app estimates reflect loaded satellite passes. Confirmed email subscriptions below run separately on the server; they are not emergency alerts.
         </p>
       </section>
-      <section className="intel-card">
-        <span className="eyebrow">
-          ALERT SETUP DEMO · BACKEND CONNECTION REQUIRED
-        </span>
-        <h2>Email preferences</h2>
-        <form
-          className="alert-form"
-          onChange={() => setSaved(false)}
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSaved(true);
-          }}
-        >
-          <label>
-            Email
-            <input required type="email" placeholder="you@example.com" />
-          </label>
-          <label>
-            Risk threshold
-            <select
-              value={threshold}
-              onChange={(e) => setThreshold(e.target.value)}
-            >
-              {["LOW", "MODERATE", "HIGH", "CRITICAL"].map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Radius (km)
-            <input
-              required
-              type="number"
-              min={1}
-              max={500}
-              value={radius}
-              onChange={(e) => setRadius(Number(e.target.value))}
-            />
-          </label>
-          <button className="button secondary" type="submit">
-            Enable alerts · demo
-          </button>
-        </form>
-        {saved && (
-          <p role="status">
-            Demo preferences validated for this session. No subscription created
-            and no email sent.
-          </p>
-        )}
-        <p>
-          Email delivery, consent storage and scheduled checks require an alert
-          backend.
-        </p>
-      </section>
+      <section className="intel-card"><span className="eyebrow">NEARBY FILTERS</span><h2>Choose your alert area.</h2><div className="alert-form"><label>Radius (km)<input type="number" min={1} max={500} value={radius} onChange={e=>setRadius(Math.max(1,Math.min(500,Number(e.target.value)||1)))}/></label><label>In-app risk threshold<select value={threshold} onChange={e=>setThreshold(e.target.value)}>{['LOW','MODERATE','HIGH','CRITICAL'].map(level=><option key={level}>{level}</option>)}</select></label></div></section>
+      <EmailSubscription location={location} radius={radius}/>
     </div>
   );
 }

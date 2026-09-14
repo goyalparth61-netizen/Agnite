@@ -28,12 +28,12 @@ export default function Footer() {
           </a>
         </nav>
       </div>
-      <div id="contact" className="team-contact">
+      <div className="team-contact">
         <span>TEAM TIMEPASS</span>
         <p>
           Smart India Hackathon 2026 / SIH26162
           <br />
-          Project contact details will be published here when available.
+          Use the Contact section above for project enquiries.
         </p>
       </div>
       <div className="footer-bottom">

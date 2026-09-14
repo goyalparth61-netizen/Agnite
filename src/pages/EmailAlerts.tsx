@@ -1,0 +1,7 @@
+import { useState } from 'react';
+export default function EmailAlerts(){
+ const [params]=useState(()=>new URLSearchParams(window.location.hash.split('?')[1]));const token=params.get('token');const unsubscribe=params.get('action')==='unsubscribe';
+ const [status,setStatus]=useState('');const [busy,setBusy]=useState(false);const [done,setDone]=useState(false);
+ async function act(){setBusy(true);try{const response=await fetch(`/api/alerts/${unsubscribe?'unsubscribe':'confirm'}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token}),signal:AbortSignal.timeout(20000)});const data=await response.json();setStatus(data.message||data.error);setDone(response.ok);if(response.ok)window.history.replaceState(null,'','#/email-alerts');}catch{setStatus('Could not reach the server. Please retry.');}finally{setBusy(false);}}
+ return <main className="container section"><section className="intel-card"><span className="eyebrow">AGNITE EMAIL ALERTS</span><h1>{unsubscribe?'Stop nearby alerts':'Confirm nearby alerts'}</h1><p>{unsubscribe?'Delete the subscription, including its email and saved location.':'Activate monitoring for the location and FRP threshold shown in your confirmation email.'}</p><p role="status">{status}</p>{!done&&<button className="button secondary" disabled={!token||busy} onClick={()=>void act()}>{busy?'Working…':unsubscribe?'Unsubscribe and delete':'Confirm subscription'}</button>}<p><a href="#/workspace?tab=monitoring">Return to AGNITE</a></p></section></main>;
+}

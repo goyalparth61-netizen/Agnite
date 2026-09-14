@@ -1,6 +1,7 @@
 import RiskOverview from "../risk/RiskOverview";
 import NearbyAlerts from "../alerts/NearbyAlerts";
 import PersistentHeatComparison from "../intelligence/PersistentHeatComparison";
+import ContactForm from './ContactForm';
 export function HomeRisk() {
   return (
     <section id="risk" className="section container">
@@ -31,7 +32,7 @@ export function Contact() {
           <br />
           Smart India Hackathon 2026
         </p>
-        <p>Project contact will be published here.</p>
+        <ContactForm />
       </div>
     </section>
   );

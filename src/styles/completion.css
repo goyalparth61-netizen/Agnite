@@ -423,3 +423,9 @@
     grid-template-columns: 1fr;
   }
 }
+/* Additive form and learning-resource styling. */
+.alert-form textarea { width:100%; padding:12px; border:1px solid #465463; border-radius:8px; background:#141c25; color:#edf2f7; font:inherit; resize:vertical; }
+.alert-form .consent-row { display:flex; align-items:flex-start; gap:12px; line-height:1.6; }
+.alert-form .consent-row input { width:18px; min-width:18px; height:18px; margin-top:4px; }
+.safety-resource { margin:24px 0; }
+.safety-resource .button { margin:8px 12px 8px 0; }

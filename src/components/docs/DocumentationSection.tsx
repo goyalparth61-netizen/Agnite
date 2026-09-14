@@ -22,7 +22,7 @@ const sources = [
   [
     "OpenStreetMap",
     "Map tiles",
-    "Street-map context; tiles require network access. Not a land-cover classifier.",
+    "Map tiles plus a 5 km Overpass lookup for industrial and geographic features. Centre-point distances do not establish site containment.",
   ],
   [
     "Historical records",
@@ -32,7 +32,7 @@ const sources = [
   [
     "Land cover / industrial context",
     "User supplied",
-    "Unknown unless entered by the user; demo context is simulated.",
+    "Nearby mapped facilities are loaded automatically for review. Verified model inputs remain user supplied; demo context is simulated.",
   ],
   [
     "Weather / wind",
@@ -50,13 +50,13 @@ const details: Record<string, string> = {
   "Risk Methodology":
     "Risk is a 0–100 heuristic index, not event probability. FRP, baseline deviation, recurrence, trend and supplied context contribute points. Future windows assume trend continuation from acquisition; missing evidence lowers confidence.",
   Alerts:
-    "Optional browser location is requested only after a click. Saved-site monitoring checks loaded NASA observations. Email setup is a frontend demo, with no delivery service.",
+    "Optional browser location is requested only after a click. Saved-site monitoring checks loaded NASA observations. Server-configured email subscriptions require explicit consent and email confirmation, check fresh NASA detections every 10 minutes and support unsubscribe/deletion. Email thresholds use FRP and distance, not heuristic risk scores.",
   "APIs / Integrations":
-    "GET /api/firms retrieves NASA data. POST /api/agnite/ask supports a configured AI provider with local fallback. CSV import and JSON/CSV export work locally. Provider keys belong on the server.",
+    "GET /api/firms retrieves NASA data. POST /api/agnite/ask supports a configured AI provider with local fallback. CSV import and JSON/CSV export work locally. GET /api/site-context loads OSM evidence; /api/alerts/* handles email consent and delivery; POST /api/contact sends team enquiries when configured. Provider keys belong on the server.",
   "Agents / Services":
-    "Current services: feed retrieval/cache, observation validation, local classification and assistant request handling. No autonomous dispatch, emergency response or background email agents are connected.",
+    "Current services: feed retrieval/cache, observation validation, local classification and assistant request handling. An optional email worker handles confirmed subscriptions while the server runs. No autonomous emergency response is connected.",
   "Upcoming Features":
-    "Pending: historical archive ingestion, verified land-cover and industrial datasets, weather forecasts, field validation, alert delivery and calibrated prediction models.",
+    "Pending: historical archive ingestion, verified land-cover and industrial datasets, weather forecasts, field validation and calibrated prediction models.",
 };
 export function ArchitectureFlow() {
   return (
@@ -110,7 +110,7 @@ export default function DocumentationSection() {
                 <ArchitectureFlow />
                 <p>
                   Conceptual system flow. Alerts include local monitoring and
-                  demo email setup; future risk is an unvalidated estimate.
+                  confirmed email subscriptions when configured; future risk is an unvalidated estimate.
                 </p>
               </>
             ) : (

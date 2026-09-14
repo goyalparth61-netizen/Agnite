@@ -45,7 +45,7 @@ Auto-check runs every ten minutes while the workspace is open and the page is vi
 
 ## AGNITE AI and local workflows
 
-Select a detection and choose **Analyze site**. Analysis uses observations within 5 km, with the engine retaining up to 30 days of supplied history around the latest detection. Enter verified land cover, industrial distance and optional wind speed. These fields are user supplied; weather, land-cover and facility datasets are not automatically fetched.
+Select a detection and choose **Analyze site**. Analysis uses observations within 5 km, with the engine retaining up to 30 days of supplied history around the latest detection. Enter verified land cover, industrial distance and optional wind speed. These model inputs remain user verified. A nearby OpenStreetMap/Overpass panel now retrieves industrial and geographic features for review; feature-centre distance does not establish containment. Weather remains manual.
 
 The bundled multinomial logistic regression is trained on **2,600 seeded synthetic examples**, with 800 separate synthetic validation examples. Training uses no real satellite or field labels. Inference runs in the browser. Candidate patterns are industrial fire, persistent industrial heat, forest/natural fire and other thermal anomaly; these experimental labels do not verify real causes.
 
@@ -55,7 +55,7 @@ Reports contain pass-level FRP history, a historical baseline, evidence, feature
 
 - **Import data:** preview and validate UTF-8 CSV files up to 2 MB and 5,000 observations; inspect errors and duplicates before loading valid rows. Manual observations can build local history. Contents stay in the browser. Uploaded provenance becomes `imported`, while an explicit `demo` label remains simulated.
 - **Saved reports:** retain up to 50 snapshots containing observations, context and analysis; inspect evidence, export JSON or delete reports. Browser `localStorage` holds the archive; clearing it removes saved items.
-- **Monitoring:** save up to 50 named coordinates and FRP thresholds. Matches use the currently loaded NASA sensor/window within 5 km of each site. This is in-app monitoring with freshness information; no background service, emails or emergency notifications are sent.
+- **Monitoring:** save up to 50 named coordinates and FRP thresholds. Matches use the currently loaded NASA sensor/window within 5 km of each site. Saved-site matches are in-app monitoring. A separate confirmed email subscription can run on the server when configured; see `server/ALERTS-CONFIG.md`. These are satellite detection notices, not emergency notifications.
 - **Ask AGNITE:** a local command assistant answers supported questions about loaded data, highest FRP, evidence, classification and monitoring. No conversational language model is connected.
 - **Demo scenario:** explicitly loads simulated observations and context to explore the full analysis workflow independently of NASA availability.
 
@@ -111,3 +111,16 @@ These scripts check data and application logic. Browser layout, keyboard interac
 - `src/styles/`: shared design, maps and workspace layouts.
 
 Application code is MIT licensed; [LICENSE](LICENSE) and `public/LICENSE` contain the license. GeoNames is CC BY 4.0 with separate attribution; Natural Earth geometry is public domain and OpenStreetMap attribution appears on maps.
+
+
+## Added MVP workflows
+
+- Click an arbitrary map location or enter coordinates to select the latest loaded detection within 5 km; empty areas are explicitly reported without inventing observations.
+- Selected-hotspot classification initializes automatically. Existing model, dataset imports, archive, AI provider, layout and risk sections are retained.
+- Nearby industry/geographic evidence is loaded from OpenStreetMap/Overpass, with source links and centre-distance limitations.
+- Optional coordinate or browser-location email subscriptions use consent, email verification, periodic checks, persisted deduplication and unsubscribe/deletion. Configure the server using [ALERTS-CONFIG.md](server/ALERTS-CONFIG.md).
+- Nearby detection cards can export an SVG alert image including acquisition time, source, FRP and index limitations.
+- Contact enquiries use a configured team inbox; downloadable drafts work without delivery configuration.
+- Awareness includes [official NDMA SACHET precautions and video resources](https://sachet.ndma.gov.in/DosDont) and links to official alerts.
+
+The classifier is still synthetic-trained and future risk windows are heuristic scenarios, not validated occurrence probabilities. Verified incident labels, longer historical data and time/location-held-out evaluation are needed before claiming operational predictive accuracy. Automatic facility-boundary verification, live news ingestion and weather forecasts are not included.

@@ -24,6 +24,7 @@ export default function AwarenessSection() {
     <section id="awareness" className="section container">
       <span className="eyebrow">EDUCATIONAL CONTENT · NO LIVE NEWS FEED</span>
       <h2>Understand heat. Stay aware.</h2>
+      <div className="intel-card safety-resource"><span className="eyebrow">OFFICIAL LEARNING RESOURCES</span><h3>Fire precautions & awareness videos</h3><p>Explore the NDMA SACHET library for Fire, Forest Fire and Chemical Emergencies guidance, with multilingual resources and a video section.</p><a className="button secondary" href="https://sachet.ndma.gov.in/DosDont" target="_blank" rel="noreferrer">Watch precaution videos & read guidance ↗</a><a className="button secondary" href="https://sachet.ndma.gov.in/" target="_blank" rel="noreferrer">View official disaster alerts ↗</a><p>External official resources; AGNITE does not republish these as a live news feed.</p></div>
       <div className="intel-grid">
         {cards.map(([title, category, summary, more]) => (
           <Reveal key={title}>

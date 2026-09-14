@@ -1,0 +1,7 @@
+import type {Observation} from './thermalEngine';
+const escape=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+export function alertImage(row:Observation,distance:number,risk:number,level:string){
+ const color=level==='CRITICAL'?'#f87171':level==='HIGH'?'#fb923c':level==='MODERATE'?'#facc15':'#86efac';
+ const lines=[`Location: ${row.latitude.toFixed(4)}, ${row.longitude.toFixed(4)}`,`Acquisition: ${new Date(row.observedAt).toISOString()}`,`FRP: ${row.frp.toFixed(1)} MW | Distance: ${distance.toFixed(1)} km`,`Estimated risk index: ${risk}/100 | ${level}`,`Source: ${row.source.toUpperCase()}`, 'Reason: thermal detection within your selected radius.', 'Industrial operations can also produce persistent heat.', 'Detection is not a confirmed fire. Index is not probability.', 'Check current local authority guidance and site evidence.'];
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650"><rect width="1000" height="650" rx="24" fill="#131b24"/><rect x="30" y="30" width="8" height="590" fill="${color}"/><text x="65" y="90" fill="${color}" font-family="Arial,sans-serif" font-size="32" font-weight="bold">AGNITE | NEARBY THERMAL ACTIVITY</text>${lines.map((line,i)=>`<text x="65" y="${150+i*47}" fill="#e5e7eb" font-family="Arial,sans-serif" font-size="22">${escape(line)}</text>`).join('')}</svg>`;
+}

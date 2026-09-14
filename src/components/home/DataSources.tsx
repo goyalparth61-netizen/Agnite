@@ -8,7 +8,7 @@ export default function DataSources() {
         <SectionHeader
           label="05 / MULTI-SOURCE BY DESIGN"
           title="A STRONGER FOUNDATION FOR EVERY INSIGHT."
-          text="NASA FIRMS observations and OpenStreetMap basemaps are connected. Additional automatic context integrations remain planned."
+          text="NASA FIRMS observations and OpenStreetMap basemaps are connected. Nearby industrial and geographic map features are retrieved through Overpass; verified land cover and weather remain manual inputs."
         />
         <div className="data-grid">
           {sources.map(([name, contribution]) => (

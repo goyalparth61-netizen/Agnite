@@ -30,11 +30,12 @@ try {
   assert.equal((risk.match(/role="meter"/g)||[]).length,3);
   const alerts=await render('components/alerts/NearbyAlerts.tsx');
   assert.match(alerts,/Enable Nearby Alerts/);
-  assert.match(alerts,/BACKEND CONNECTION REQUIRED/);
+  assert.match(alerts,/Send confirmation email/);
+  assert.match(alerts,/Use these coordinates/);
   assert.match(alerts,/type="email"/);
   const docs=await render('components/docs/DocumentationSection.tsx');
   const {documentationLinks,docId}=await load('components/docs/DocumentationSection.tsx');
   for(const label of documentationLinks) assert.ok(docs.includes(`id="${docId(label)}"`));
   assert.match(await render('components/awareness/AwarenessSection.tsx'),/NO LIVE NEWS FEED/);
-  console.log('PASS: component rendering, provenance labels, risk windows/meters, optional location, demo email form, documentation anchors and educational labels.');
+  console.log('PASS: component rendering, provenance labels, risk windows/meters, optional location, confirmed-email form, documentation anchors and educational labels.');
 } finally {await vite.close();}

@@ -1,5 +1,7 @@
 import { createServer as createHttpServer } from 'node:http';
 import {createAiProvider, handleAiRequest} from './aiProvider.mjs';
+import {createNotifications} from './notifications.mjs';
+import {createSiteContext} from './siteContext.mjs';
 import { createReadStream } from 'node:fs';
 import { realpath, stat } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -275,15 +277,23 @@ export function createServer({ distDir = defaultDist, fetchImpl, now, cacheTtlMs
   const distRoot = resolve(distDir);
   const ai = createAiProvider();
   const firms = createFirmsService({ fetchImpl, now, cacheTtlMs, timeoutMs });
-  return createHttpServer(async (request, response) => {
+  const notifications = createNotifications({firms});
+  const siteContext = createSiteContext();
+  const server = createHttpServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
+      if (url.pathname.startsWith('/api/alerts/') || url.pathname === '/api/contact') return await notifications.handle(request,response,url);
       if (url.pathname === '/api/agnite/ask') return await handleAiRequest(request, response, ai);
       if (!['GET', 'HEAD'].includes(request.method)) {
         response.setHeader('Allow', 'GET, HEAD');
         return json(response, 405, { error: 'Method not allowed.' });
       }
       if (url.pathname === '/api/health') return json(response, 200, { status: 'ok', service: 'agnite', firms: 'public-nasa-downloads' });
+      if (url.pathname === '/api/site-context') {
+        if (!url.searchParams.has('latitude') || !url.searchParams.has('longitude')) return json(response,400,{error:'Latitude and longitude are required.'});
+        try {return json(response,200,await siteContext(Number(url.searchParams.get('latitude')),Number(url.searchParams.get('longitude'))));}
+        catch {return json(response,503,{error:'Nearby map context unavailable. Retry or supply verified context manually.'});}
+      }
       if (url.pathname === '/api/firms') return json(response, 200, await firms.get(validateQuery(url.searchParams)));
       if (url.pathname.startsWith('/api/')) return json(response, 404, { error: 'API route not found.' });
       let pathname;
@@ -324,6 +334,10 @@ export function createServer({ distDir = defaultDist, fetchImpl, now, cacheTtlMs
       else json(response, error instanceof FirmsError ? error.status : 500, { error: error instanceof FirmsError ? error.message : 'The server could not complete this request.' });
     }
   });
+  let alertTimer;
+  server.on('listening',()=>{if(notifications.enabled){void notifications.tick();alertTimer=setInterval(()=>void notifications.tick(),600000);alertTimer.unref();}});
+  server.on('close',()=>clearInterval(alertTimer));
+  return server;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
