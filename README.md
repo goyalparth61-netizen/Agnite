@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/brand/agnite-logo.png" alt="AGNITE logo" width="190" />
+  <img src="https://raw.githubusercontent.com/goyalparth61-netizen/Agnite/main/public/brand/agnite-logo.png" alt="AGNITE logo" width="280" />
 </p>
 
 <h1 align="center">AGNITE — AI-Powered Thermal Intelligence</h1>
