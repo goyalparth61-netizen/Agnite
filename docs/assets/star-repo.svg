@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="112" viewBox="0 0 760 112" role="img" aria-labelledby="title desc">
+  <title id="title">Star AGNITE on GitHub</title>
+  <desc id="desc">Animated call to action asking viewers to star the AGNITE repository.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111820"/><stop offset="1" stop-color="#1b2530"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd79e"/><stop offset="1" stop-color="#e6a563"/></linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="1" y="1" width="758" height="110" rx="22" fill="url(#bg)" stroke="#33414e"/>
+  <g transform="translate(34 22)" filter="url(#glow)">
+    <path d="M34 2l9.4 19 21 3.1-15.2 14.8 3.6 20.9L34 49.9 15.2 59.8l3.6-20.9L3.6 24.1l21-3.1z" fill="url(#gold)">
+      <animateTransform attributeName="transform" type="scale" values="1;1.08;1" dur="1.8s" repeatCount="indefinite" additive="sum"/>
+    </path>
+  </g>
+  <text x="118" y="46" fill="#f3efe8" font-family="Arial, sans-serif" font-size="22" font-weight="700">Like the idea? Star AGNITE.</text>
+  <text x="118" y="72" fill="#9eabb7" font-family="Arial, sans-serif" font-size="12">Support Team Timepass and help this SIH 2026 project reach more builders and reviewers.</text>
+  <rect x="612" y="34" width="116" height="44" rx="12" fill="#e6b477">
+    <animate attributeName="opacity" values="1;.78;1" dur="2s" repeatCount="indefinite"/>
+  </rect>
+  <text x="670" y="61" text-anchor="middle" fill="#101419" font-family="Arial, sans-serif" font-size="13" font-weight="700">★ STAR REPO</text>
+</svg>

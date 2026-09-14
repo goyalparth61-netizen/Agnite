@@ -1,301 +1,191 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/goyalparth61-netizen/Agnite/main/public/brand/agnite-logo.png" alt="AGNITE logo" width="260" />
+  <img src="https://raw.githubusercontent.com/goyalparth61-netizen/Agnite/main/public/brand/agnite-logo.png" alt="AGNITE logo" width="180" />
 </p>
 
 <h1 align="center">AGNITE</h1>
 
-<p align="center">
-  <strong>AI-Powered Thermal Intelligence for India</strong>
-</p>
-
-<p align="center">
-  Detect • Understand • Classify • Predict • Explain • Act
-</p>
+<p align="center"><strong>AI-Powered Thermal Intelligence for India</strong></p>
+<p align="center">Detect · Contextualize · Classify · Predict · Explain · Act</p>
 
 <p align="center">
   <a href="https://github.com/goyalparth61-netizen/Agnite/actions/workflows/ci.yml"><img src="https://github.com/goyalparth61-netizen/Agnite/actions/workflows/ci.yml/badge.svg" alt="AGNITE CI" /></a>
+  <a href="https://github.com/goyalparth61-netizen/Agnite/stargazers"><img src="https://img.shields.io/github/stars/goyalparth61-netizen/Agnite?style=flat&logo=github&label=Stars" alt="GitHub stars" /></a>
   <img src="https://img.shields.io/badge/React-TypeScript-3178C6?logo=react&logoColor=white" alt="React TypeScript" />
   <img src="https://img.shields.io/badge/Data-NASA%20FIRMS-F57C00" alt="NASA FIRMS" />
   <img src="https://img.shields.io/badge/Maps-Leaflet%20%2B%20OSM-199900" alt="Leaflet OpenStreetMap" />
+  <img src="https://img.shields.io/badge/SIH-2026-e6b477" alt="Smart India Hackathon 2026" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2ea44f" alt="MIT License" /></a>
 </p>
 
+<p align="center"><strong>Team Timepass · Quantum University · Smart India Hackathon 2026 · SIH26162</strong></p>
+
 <p align="center">
-  <strong>Team Timepass · Quantum University · Smart India Hackathon 2026 · SIH26162</strong>
+  <a href="https://github.com/goyalparth61-netizen/Agnite/stargazers">
+    <img src="docs/assets/star-repo.svg" alt="Star the AGNITE repository" width="760" />
+  </a>
 </p>
 
 ---
 
-## Overview
+## What is AGNITE?
 
-**AGNITE** is an India-focused AI and GIS platform for understanding thermal activity detected from space.
+**AGNITE** is an India-focused thermal-intelligence platform built for SIH26162: **AI-Based Detection and Classification of Industrial Fires and Persistent Thermal Sources Using NASA FIRMS**.
 
-The core problem statement is:
-
-> **AI-Based Detection and Classification of Industrial Fires and Persistent Thermal Sources Using NASA FIRMS.**
-
-Instead of showing a thermal hotspot as a single dot on a map, AGNITE builds context around that location. It combines current satellite observations, previous detections, thermal behaviour, nearby industrial/geographic evidence, explainable classification, future risk/recurrence windows, alerts and a grounded AI assistant.
-
-The product is designed around one simple story:
+Most hotspot viewers answer only **where heat was detected**. AGNITE continues the investigation:
 
 ```text
-PAST → PRESENT → UNDERSTAND → CLASSIFY → PREDICT → EXPLAIN → ACT
+PAST → PRESENT → CONTEXT → CLASSIFY → RECURRENCE → EXPLAIN → ACT
 ```
 
-A person should be able to open AGNITE, select a location in India and understand:
-
-- what thermal activity is visible now;
-- what happened at the same location previously;
-- whether the pattern looks persistent or abnormal;
-- whether nearby industrial or geographic context may matter;
-- which thermal class best fits the available evidence;
-- what the next 24h / 48h / 7d risk or recurrence window looks like;
-- why AGNITE reached that result;
-- what evidence is missing;
-- what precautions or monitoring actions may be appropriate.
+For a selected thermal hotspot, the platform combines NASA FIRMS observations, historical behaviour, mapped industrial/geographic context, explainable classification, a trained thermal-recurrence model, AGNITE AI, monitoring and alerts.
 
 > [!IMPORTANT]
-> AGNITE is a decision-support prototype. A satellite thermal detection is **not automatically a confirmed fire**, and the platform is not an emergency-response authority.
+> AGNITE is a decision-support prototype. A NASA FIRMS hotspot is a **satellite thermal detection**, not automatically a confirmed fire or verified cause.
 
 ---
 
-## What makes AGNITE different
+## Product preview
 
-Most hotspot viewers answer **where** thermal activity was detected.
+<p align="center">
+  <img src="docs/assets/product-preview.svg" alt="AGNITE thermal intelligence workspace preview" width="100%" />
+</p>
 
-AGNITE is being built to answer the next questions:
+The current workspace is organized around one judge-friendly flow: **select hotspot → analyze signal → inspect history/context → review recurrence → ask AGNITE AI → monitor or export**.
 
-| Question | AGNITE capability |
+---
+
+## Why it stands out
+
+| Question a user asks | AGNITE response |
 | --- | --- |
-| Where is thermal activity occurring? | Interactive India-focused map using NASA FIRMS observations |
-| Has this location behaved like this before? | Historical detections, baseline FRP, trend and recurrence analysis |
-| Is this likely persistent heat or an abnormal event? | Explainable multi-class thermal classification with abstention |
-| Is an industry or geographic feature nearby? | OpenStreetMap / Overpass spatial context |
-| What may happen next? | 24h / 48h / 7d risk or thermal-recurrence windows |
-| Why did the system produce this result? | Evidence, feature contributions and AGNITE AI explanations |
-| Can I monitor this location? | Saved locations, thresholds, reports and optional email alerts |
-| What should I do next? | Safety guidance, missing-evidence checks and recommended verification steps |
+| Where is thermal activity happening? | India-focused interactive NASA FIRMS map |
+| Has this location behaved like this before? | Historical detections, FRP baseline, trend and persistence |
+| Is it likely routine industrial heat or an abnormal pattern? | Explainable multi-class classifier with conservative abstention |
+| What surrounds the hotspot? | OpenStreetMap / Overpass industrial and geographic context |
+| What may happen next? | Trained 24h / 48h / 7d thermal-recurrence model |
+| Why did the system say that? | Evidence factors, missing evidence and AGNITE AI explanation |
+| Can I monitor it? | Saved watches, thresholds, reports and optional confirmed email alerts |
+| What if evidence is weak? | Explicit `Insufficient evidence` / low-confidence states instead of forced certainty |
 
 ---
 
-## Core platform capabilities
+## Core capabilities
 
-### 1. Interactive India thermal map
+### Interactive thermal map
+- VIIRS NOAA-20, VIIRS Suomi NPP and MODIS Terra/Aqua feeds.
+- 24h, 48h and 7d observation windows.
+- Search, FRP filters, sorting, hotspot selection and CSV export.
+- Fresh / stale / unavailable provenance states are shown explicitly.
 
-The workspace can load near-real-time NASA FIRMS observations and display them on an interactive Leaflet map.
-
-Supported feeds include:
-
-- VIIRS NOAA-20
-- VIIRS Suomi NPP
-- MODIS Terra/Aqua
-- 24-hour, 48-hour and 7-day windows
-
-Users can inspect detections, filter by FRP, sort results, search coordinates, select a hotspot and export filtered observations.
-
-The backend currently filters a South Asia public feed to an India-region bounding box. This improves usability but is **not an exact political-boundary filter**.
-
-### 2. Historical thermal intelligence
-
-For a selected site, AGNITE can derive:
-
+### Historical thermal intelligence
+For a selected site AGNITE derives:
 - previous nearby detections;
-- current FRP;
-- historical baseline FRP;
-- percentage deviation from baseline;
-- recent thermal trend;
-- repeated satellite passes;
-- recurrence indicators;
+- current and baseline FRP;
+- deviation from baseline;
+- recent trend;
+- recurrence and repeated passes;
 - observed-day persistence;
 - saved-report history.
 
-This gives the AI and classification layers temporal context instead of treating every hotspot independently.
-
-### 3. Explainable thermal classification
-
-AGNITE currently evaluates four thermal patterns:
-
+### Explainable classification
+Current experimental classes:
 - **Industrial Fire**
 - **Persistent Industrial Heat**
 - **Forest / Natural Fire**
 - **Other Thermal Anomaly**
+- **Insufficient evidence** when the gate is not satisfied
 
-The classifier uses thermal, spatial and temporal evidence and is intentionally designed to **abstain** when evidence is weak or ambiguous.
+### Persistent-heat separation
+Routine industrial heat can repeat around furnaces, kilns, power facilities and process sites. AGNITE therefore compares recurrence, baseline behaviour and mapped context before treating repeated heat as an abnormal event.
 
-An abstention is better than a confident but unsupported label.
+### Spatial context
+`/api/site-context` queries bounded OpenStreetMap / Overpass context such as industrial land use, works, power facilities, forest, scrub, water and residential areas. Proximity is supporting evidence, not proof of causality.
 
-### 4. Persistent heat handling
+### Trained thermal-recurrence model
+The committed **v2.0.0** artifact is trained from historical NASA FIRMS Standard Processing VIIRS observations from **2024–2025**.
 
-Industrial facilities may repeatedly generate legitimate heat through furnaces, kilns, power generation, process heat or other operations.
+Target: whether another FIRMS thermal detection occurs in the same approximately 2 km spatial cell within **24h, 48h or 7d**.
 
-AGNITE therefore considers recurrence, historical baseline and nearby mapped industrial context before treating a repeated thermal signal as an abnormal event.
+This is intentionally different from claiming a confirmed future fire.
 
-Mapped proximity alone does not prove that a hotspot belongs to a facility or identify the source of heat.
+### AGNITE AI
+AGNITE AI is grounded in the selected hotspot. It can explain:
+- why the current pattern was classified a certain way;
+- what changed from historical baseline;
+- whether persistence matters;
+- what the 24h / 48h / 7d output means;
+- what evidence is missing;
+- what verification or safety action should be considered.
 
-### 5. Spatial context
+The app supports a local evidence-grounded fallback plus an optional server-side OpenAI-compatible provider.
 
-`/api/site-context` queries OpenStreetMap / Overpass for mapped features near a selected point, including relevant industrial and geographic context.
-
-Examples include:
-
-- industrial land use;
-- power facilities;
-- works, kilns and chimneys;
-- forests and woodland;
-- residential areas;
-- water and scrub.
-
-These features are supporting evidence, not verified causality.
-
-### 6. Future risk / recurrence windows
-
-AGNITE presents:
-
-- **24h**
-- **48h**
-- **7d**
-
-Two prediction modes are supported by the architecture:
-
-**Heuristic simulation**  
-Used while a validated historical recurrence model is unavailable. The score is transparent and based on displayed factors such as FRP, baseline deviation, recurrence, trend and supplied context.
-
-**Historical thermal-recurrence model**  
-A reproducible Python pipeline can train 24h / 48h / 7d recurrence models from historical NASA FIRMS CSV data. The trained artifact is activated only after it exists and has been reviewed.
-
-The prediction target is another thermal detection in the same spatial cell. It is **not equivalent to predicting a confirmed fire incident**.
-
-### 7. AGNITE AI
-
-AGNITE AI is designed as a **grounded thermal-intelligence assistant**, not a generic chatbot.
-
-It receives structured evidence from the selected site and can answer questions such as:
-
-- Why is this hotspot risky?
-- What changed from the historical baseline?
-- Is this pattern more consistent with persistent industrial heat or an abnormal fire-like event?
-- What happened at this location previously?
-- What could the next 24h / 48h / 7d window mean?
-- Which evidence is missing?
-- What precautions or verification steps should be considered?
-- What are FRP, VIIRS, MODIS and NASA FIRMS?
-
-The application supports a server-side OpenAI-compatible provider and retains a local evidence-grounded fallback.
-
-### 8. Risk visualization
-
-Risk is presented with clear levels and visual states:
-
-```text
-LOW       → Green
-MODERATE  → Yellow
-HIGH      → Orange
-CRITICAL  → Red
-```
-
-The interface also shows contributing factors and missing evidence so that a score is not presented as an unexplained number.
-
-### 9. Monitoring and alerts
-
-Users can:
-
-- save monitored coordinates;
-- define FRP thresholds;
-- compare nearby loaded NASA observations;
-- export reports;
-- generate alert graphics;
-- optionally subscribe to email notifications.
-
-Email subscriptions require explicit consent and confirmation. Demo, manual and imported observations do not trigger production email alerts.
-
-### 10. Awareness and safety
-
-The platform includes educational fire/thermal-awareness content, safety guidance and links to official public resources. This layer is intended to make the platform understandable to non-technical users as well as technical evaluators.
+### Monitoring, alerts and reports
+- browser-saved watched locations;
+- FRP threshold matching;
+- report snapshots;
+- CSV / JSON / SVG-style export workflows;
+- optional consent + confirmation based email alerts.
 
 ---
 
-## System architecture
+## Validation snapshot
 
-```text
-                         ┌──────────────────────┐
-                         │        USER          │
-                         └──────────┬───────────┘
-                                    │
-                         ┌──────────▼───────────┐
-                         │  REACT / TYPESCRIPT  │
-                         │  Multi-page UI + GIS │
-                         └──────────┬───────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │      INTERACTIVE INDIA MAP     │
-                    └───────────────┬────────────────┘
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              │                     │                     │
-      ┌───────▼────────┐   ┌────────▼────────┐   ┌───────▼────────┐
-      │   NASA FIRMS   │   │ OSM / OVERPASS │   │ USER / IMPORT  │
-      │ Thermal signal │   │ Spatial context│   │ Optional data  │
-      └───────┬────────┘   └────────┬────────┘   └───────┬────────┘
-              └─────────────────────┼─────────────────────┘
-                                    │
-                         ┌──────────▼───────────┐
-                         │ OBSERVATION PIPELINE │
-                         │ validate • filter    │
-                         │ dedupe • normalize   │
-                         └──────────┬───────────┘
-                                    │
-                         ┌──────────▼───────────┐
-                         │ HISTORICAL ANALYSIS  │
-                         │ baseline • trend     │
-                         │ recurrence • persist │
-                         └──────────┬───────────┘
-                                    │
-              ┌─────────────────────┼──────────────────────┐
-              │                     │                      │
-     ┌────────▼─────────┐  ┌────────▼─────────┐  ┌────────▼────────┐
-     │ CLASSIFICATION   │  │ RISK / RECURRENCE│  │  EXPLAINABILITY │
-     │ + ABSTENTION     │  │ 24h • 48h • 7d   │  │ factors/evidence│
-     └────────┬─────────┘  └────────┬─────────┘  └────────┬────────┘
-              └─────────────────────┼──────────────────────┘
-                                    │
-                         ┌──────────▼───────────┐
-                         │      AGNITE AI       │
-                         │ grounded explanation │
-                         └──────────┬───────────┘
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              │                     │                     │
-       ┌──────▼──────┐      ┌──────▼──────┐      ┌──────▼──────┐
-       │    RISK     │      │   ALERTS    │      │   REPORTS   │
-       └─────────────┘      └─────────────┘      └─────────────┘
-```
+### Historical NASA FIRMS recurrence model v2
 
-For the full technical breakdown, see **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+Training pipeline processed **1,470,795 grouped FIRMS events/examples** with a chronological holdout of **294,159** observations.
+
+| Horizon | Conservative threshold | Precision | Recall | 99% precision target |
+| --- | ---: | ---: | ---: | --- |
+| 24h | 0.998510 | **98.25%** | 0.24% | ❌ Not met |
+| 48h | 0.999778 | **99.06%** | 0.18% | ✅ Met |
+| 7d | 0.999996 | **99.06%** | 0.55% | ✅ Met |
+
+These are **high-confidence selective positive decisions**. The very low recall is intentional and must be disclosed: the model abstains on most cases to protect precision.
+
+> [!CAUTION]
+> **99.06% precision on held-out thermal-recurrence labels is not 99% fire-prediction accuracy.** The target is repeat satellite thermal detection, not a verified incident.
+
+### Thermal classifier
+The bundled four-class classifier is synthetic-trained for pipeline demonstration and explainability. On its synthetic holdout it records **93.75% accuracy**. Its selective gate reaches **99.08% precision at 81.13% coverage** on synthetic held-out examples only. These numbers are not field validation.
+
+Full methodology: **[docs/ML_PIPELINE.md](docs/ML_PIPELINE.md)**.
 
 ---
 
-## Data flow
+## Architecture
 
-```text
-NASA FIRMS
-    ↓
-Hotspot selected
-    ↓
-Spatial + Thermal + Temporal features
-    ↓
-Historical baseline and recurrence analysis
-    ↓
-Explainable classification
-    ↓
-Industrial Fire / Persistent Industrial Heat /
-Forest-Natural Fire / Other / Insufficient Evidence
-    ↓
-24h / 48h / 7d risk or recurrence layer
-    ↓
-AGNITE AI
-    ↓
-Risk • explanation • precautions • monitoring • alerts
+```mermaid
+flowchart LR
+    U[User / Judge] --> UI[React + TypeScript UI]
+    UI --> MAP[India Thermal Workspace]
+    MAP --> FIRMS[NASA FIRMS]
+    MAP --> OSM[OSM / Overpass Context]
+    FIRMS --> OBS[Validation + Provenance + Dedupe]
+    OSM --> OBS
+    OBS --> HIST[Historical Intelligence]
+    HIST --> CLS[Explainable Classification + Abstention]
+    HIST --> REC[Recurrence Model v2\n24h · 48h · 7d]
+    CLS --> AI[AGNITE AI]
+    REC --> AI
+    AI --> OUT[Risk · Explanation · Alerts · Reports]
 ```
+
+Detailed design: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+
+---
+
+## Demo in 90 seconds
+
+1. Open **Dashboard → Satellite feed**.
+2. Select a hotspot with useful history or click **Load demo scenario**.
+3. Open **AGNITE AI / Analysis** to show baseline, trend, context, classification and evidence.
+4. Open **Risk** to show 24h / 48h / 7d recurrence output and conservative confidence gate.
+5. Open **Ask AGNITE** and ask: `Why is this hotspot risky and what evidence is missing?`
+6. Finish with **Alerts / Saved reports**.
+
+A deterministic industrial-spike fallback is built into the application, and additional importable scenarios are included under **[`demo/`](demo/README.md)**.
+
+Full judging script: **[docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)**.
 
 ---
 
@@ -304,322 +194,97 @@ Risk • explanation • precautions • monitoring • alerts
 | Layer | Technology |
 | --- | --- |
 | Frontend | React, TypeScript, Vite |
-| Animation | Framer Motion |
+| Motion | Framer Motion |
 | Mapping | Leaflet, OpenStreetMap |
 | Charts | Recharts |
-| Icons | Lucide React |
 | Backend | Node.js ESM HTTP server |
 | Satellite data | NASA FIRMS |
 | Spatial context | OpenStreetMap / Overpass |
-| ML runtime | TypeScript inference + JSON model artifacts |
-| ML training | Python |
-| AI assistant | Grounded local assistant + optional OpenAI-compatible provider |
+| ML training | Python, pandas, NumPy, scikit-learn |
+| ML runtime | TypeScript + portable JSON artifacts |
+| AI assistant | Local grounded mode + optional OpenAI-compatible provider |
 | Email alerts | Resend-compatible workflow |
-| Deployment | Render-compatible single web service |
+| Deployment | Render-ready single Node service |
 | CI | GitHub Actions |
 
 ---
 
-## Current MVP status
+## Project status
 
-| Component | Status | Notes |
-| --- | --- | --- |
-| Multi-page product UI | ✅ Ready | Home, Platform, Intelligence, Risk, Learn, About, Workspace |
-| India-focused interactive GIS | ✅ Ready | Leaflet + NASA observations |
-| NASA FIRMS feed integration | ✅ Ready | NOAA-20, SNPP, MODIS |
-| Historical intelligence | ✅ Ready | Based on loaded observations / saved reports |
-| OSM industrial/geographic context | ✅ Ready | Supporting mapped evidence |
-| Thermal classification | 🧪 Experimental | Synthetic-trained classifier with conservative abstention |
-| Persistent-heat analysis | ✅ MVP ready | Uses recurrence, baseline and spatial context |
-| Risk visualization | ✅ Ready | 24h / 48h / 7d display |
-| Historical recurrence pipeline | 🧪 Training-ready | Real-data artifact not yet committed |
-| AGNITE AI local mode | ✅ Ready | Evidence-grounded fallback |
-| External conversational AI | ⚙️ Configurable | Requires server-side LLM API key |
-| In-app monitoring | ✅ Ready | Saved sites and thresholds |
-| Email alerts | ⚙️ Configurable | Requires email provider configuration |
-| Reports / exports | ✅ Ready | JSON/CSV/SVG workflows |
-| CI / production build | ✅ Ready | GitHub Actions |
-| Render deployment config | ✅ Ready | `render.yaml` included |
+| Area | Status |
+| --- | --- |
+| Multi-page product UI | ✅ Ready |
+| India-focused thermal workspace | ✅ Ready |
+| NASA FIRMS integration | ✅ Ready |
+| Historical analysis | ✅ Ready |
+| OSM context | ✅ Ready |
+| Thermal classifier | 🧪 Experimental / synthetic-trained |
+| Recurrence model v2 | ✅ Trained on historical FIRMS data |
+| 48h / 7d high-precision gate | ✅ 99% target met on chronological holdout |
+| 24h high-precision gate | ⚠️ 98.25%, target not met |
+| AGNITE AI local mode | ✅ Ready |
+| External AI provider | ⚙️ Optional configuration |
+| Watches / saved reports | ✅ Ready |
+| Email alerts | ⚙️ Optional configuration |
+| Tests / production build / CI | ✅ Passing |
 
 ---
 
-## Model and prediction integrity
-
-### Thermal classifier
-
-The currently bundled classifier is an **experimental synthetic-trained model** used to demonstrate the classification and explainability pipeline.
-
-It does **not** establish real-world industrial-fire accuracy.
-
-The engine uses conservative acceptance logic and can return:
-
-```text
-Insufficient evidence
-```
-
-instead of forcing a label.
-
-### About the 99% target
-
-The historical recurrence training pipeline can search for a decision threshold targeting **99% precision on chronological held-out data**.
-
-That target is not assumed to be achieved.
-
-AGNITE does **not** claim:
-
-- 99% real-world fire prediction accuracy;
-- guaranteed fire occurrence;
-- an exact future incident date;
-- NASA-confirmed incident cause.
-
-A 99% figure should be reported only if an actual held-out evaluation supports it, and then only with the exact metric and task description.
-
-### Historical recurrence artifact
-
-The committed artifact currently begins as:
-
-```json
-{
-  "trained": false
-}
-```
-
-When a reviewed real-data artifact is generated, the application can switch from the fallback heuristic layer to the trained recurrence model.
-
-See **[docs/ML_PIPELINE.md](docs/ML_PIPELINE.md)**.
-
----
-
-## Getting started
+## Run locally
 
 ### Prerequisites
-
 - Node.js **22+**
 - npm
-- Internet access for NASA FIRMS and map/context providers
-- Python only if you want to train the historical recurrence model
-
-### Clone and install
+- Internet access for NASA FIRMS, map tiles and OSM context
+- Python only for retraining historical models
 
 ```bash
 git clone https://github.com/goyalparth61-netizen/Agnite.git
 cd Agnite
 npm ci
-```
-
-### Development
-
-```bash
 npm run dev
 ```
 
-This starts:
+Development endpoints:
 
 ```text
-Frontend: http://localhost:5173
-Backend:  http://127.0.0.1:8787
+Frontend  http://localhost:5173
+Backend   http://127.0.0.1:8787
 ```
 
-Open the product:
-
-```text
-http://localhost:5173/
-```
-
-Open the thermal intelligence workspace directly:
-
-```text
-http://localhost:5173/#/workspace
-```
-
-### Verify before deployment
+Verification:
 
 ```bash
 npm test
 npm run build
 ```
 
-### Production mode
+Production:
 
 ```bash
 npm start
 ```
 
-The Node server serves both the built frontend and `/api/*` routes.
-
 ---
 
-## Available scripts
-
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Starts frontend and backend development processes |
-| `npm run dev:ui` | Starts Vite UI only |
-| `npm run api` | Starts backend API only |
-| `npm test` | Runs FIRMS, ML engine, import, intelligence, frontend and notification verification |
-| `npm run build` | Type-checks and creates the production Vite build |
-| `npm start` | Runs the production Node server |
-| `npm run preview` | Previews the Vite build |
-
----
-
-## Environment configuration
-
-Copy `.env.example` as a reference and configure secrets only in your shell or deployment provider.
-
-**Never commit real API keys.**
-
-### AGNITE AI
-
-```text
-AGNITE_LLM_API_KEY=
-AGNITE_LLM_BASE_URL=https://api.openai.com/v1
-AGNITE_LLM_MODEL=gpt-4.1-mini
-```
-
-The provider is OpenAI-compatible, so a compatible gateway can also be used by changing the base URL and model identifier.
-
-Detailed guide: **[server/AI-CONFIG.md](server/AI-CONFIG.md)**
-
-### Email alerts
-
-```text
-AGNITE_EMAIL_API_KEY=
-AGNITE_EMAIL_FROM=
-AGNITE_PUBLIC_URL=
-AGNITE_CONTACT_EMAIL=
-AGNITE_ALERT_STORE=
-```
-
-Detailed guide: **[server/ALERTS-CONFIG.md](server/ALERTS-CONFIG.md)**
-
-### Historical NASA training
-
-```text
-NASA_FIRMS_MAP_KEY=
-```
-
-This key is for the optional historical-data training workflow, not the existing public near-real-time feed used by the application.
-
----
-
-## Historical recurrence training
-
-Install Python requirements:
+## Reproduce the recurrence model
 
 ```powershell
 python -m pip install -r ml/requirements.txt
-```
+$env:NASA_FIRMS_MAP_KEY="<your key>"
 
-Set the NASA FIRMS MAP_KEY locally:
-
-```powershell
-$env:NASA_FIRMS_MAP_KEY="YOUR_KEY"
-```
-
-Download historical data:
-
-```powershell
 python scripts/download-firms-history.py `
   --start 2024-01-01 `
-  --end 2026-08-31 `
+  --end 2025-12-31 `
   --source VIIRS_NOAA20_SP
+
+$files = Get-ChildItem "data\firms\VIIRS_NOAA20_SP_2024-*.csv","data\firms\VIIRS_NOAA20_SP_2025-*.csv" |
+  Select-Object -ExpandProperty FullName
+
+python scripts/train-firms-recurrence-model-v2.py @files
 ```
 
-Train the recurrence models:
-
-```powershell
-$files = Get-ChildItem "data\firms\*.csv" | Select-Object -ExpandProperty FullName
-python scripts/train-firms-recurrence-model.py @files
-```
-
-Review the generated metrics before committing `src/ai/recurrence-model.json`.
-
----
-
-## API reference
-
-Core application routes include:
-
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Deployment health check |
-| `GET` | `/api/firms?sensor=noaa20&hours=24` | NASA FIRMS thermal observations |
-| `GET` | `/api/site-context?latitude=...&longitude=...` | Nearby mapped context |
-| `POST` | `/api/agnite/ask` | Grounded AGNITE AI request |
-| `GET` | `/api/alerts/status` | Alert-service availability |
-| `POST` | `/api/alerts/subscribe` | Request alert subscription |
-| `POST` | `/api/alerts/confirm` | Confirm subscription |
-| `POST` | `/api/alerts/unsubscribe` | Remove subscription and stored data |
-| `POST` | `/api/contact` | Contact workflow when email delivery is configured |
-
-Full API documentation: **[docs/API.md](docs/API.md)**
-
----
-
-## Data integrity
-
-Every observation is kept distinguishable by provenance:
-
-| Label | Meaning |
-| --- | --- |
-| `NASA DATA` | Loaded from the supported NASA FIRMS feed |
-| `IMPORTED DATA` | User-imported observations |
-| `MANUAL DATA` | User-entered observations |
-| `SIMULATED DATA` | Explicit demo/test scenarios |
-
-AGNITE does not silently replace unavailable NASA data with demo observations.
-
-The application also validates inputs, removes duplicate measurements, bounds data volume and reports stale upstream data when cached observations are used.
-
-Read **[docs/DATA_AND_LIMITATIONS.md](docs/DATA_AND_LIMITATIONS.md)** before making performance or operational claims.
-
----
-
-## Project structure
-
-```text
-Agnite/
-│
-├── .github/
-│   ├── ISSUE_TEMPLATE/          # structured issue templates
-│   └── workflows/               # CI
-│
-├── docs/                        # engineering and judging documentation
-│   ├── API.md
-│   ├── ARCHITECTURE.md
-│   ├── DATA_AND_LIMITATIONS.md
-│   ├── DEMO_GUIDE.md
-│   ├── DEPLOYMENT.md
-│   ├── ML_PIPELINE.md
-│   ├── PROJECT_STRUCTURE.md
-│   └── ROADMAP.md
-│
-├── ml/                          # Python ML requirements
-├── public/
-│   ├── brand/                   # AGNITE identity assets
-│   └── data/                    # map/place datasets and attribution
-│
-├── scripts/                     # verification, import and training utilities
-├── server/                      # Node backend, AI, alerts, site context
-├── src/
-│   ├── ai/                      # intelligence, classifier, model artifacts
-│   ├── components/              # UI modules
-│   ├── data/                    # product data
-│   ├── hooks/                   # application hooks
-│   ├── pages/                   # multi-page product routes
-│   └── styles/                  # visual system
-│
-├── .env.example
-├── render.yaml
-├── package.json
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── CHANGELOG.md
-└── README.md
-```
-
-Full map: **[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)**
+Raw historical downloads are intentionally ignored by Git. Only reviewed model artifacts should be committed.
 
 ---
 
@@ -627,86 +292,19 @@ Full map: **[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)**
 
 | Document | Purpose |
 | --- | --- |
-| [Documentation Index](docs/README.md) | Entry point for technical docs |
-| [Architecture](docs/ARCHITECTURE.md) | Full system and data-flow design |
-| [API Reference](docs/API.md) | Backend endpoints and behaviour |
-| [ML Pipeline](docs/ML_PIPELINE.md) | Classification and recurrence modelling |
-| [Data & Limitations](docs/DATA_AND_LIMITATIONS.md) | Provenance, assumptions and claim boundaries |
-| [Deployment](docs/DEPLOYMENT.md) | Production deployment checklist |
-| [Demo Guide](docs/DEMO_GUIDE.md) | Suggested evaluator/judge walkthrough |
-| [Project Structure](docs/PROJECT_STRUCTURE.md) | Repository layout |
-| [Roadmap](docs/ROADMAP.md) | Future engineering priorities |
-| [Contributing](CONTRIBUTING.md) | Contribution workflow |
-| [Security](SECURITY.md) | Security reporting and secret handling |
-| [Changelog](CHANGELOG.md) | Project evolution |
-
----
-
-## Deployment
-
-AGNITE is designed to run as a single production Node service:
-
-```text
-Render / Node Service
-├── serves dist/
-├── serves /api/*
-├── keeps LLM/email secrets server-side
-└── exposes /api/health
-```
-
-A Render blueprint is already included in `render.yaml`.
-
-Recommended deployment flow:
-
-```bash
-npm ci
-npm test
-npm run build
-npm start
-```
-
-Then verify:
-
-```text
-/api/health
-Homepage
-Dashboard
-NASA feed
-Hotspot selection
-Site analysis
-24h / 48h / 7d intelligence
-AGNITE AI
-Alerts / reports
-```
-
-Detailed deployment guide: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
-
----
-
-## Recommended demo flow
-
-For an evaluator or hackathon judge:
-
-1. Open the **Home** page and explain the problem in one sentence.
-2. Open **Dashboard**.
-3. Load a NASA FIRMS feed.
-4. Select a thermal detection on the India map.
-5. Show current FRP and historical thermal behaviour.
-6. Load nearby industrial/geographic context.
-7. Run the classification engine.
-8. Explain whether AGNITE classified the site or abstained.
-9. Show 24h / 48h / 7d risk or recurrence windows.
-10. Ask **AGNITE AI** why the system reached that result.
-11. Show risk factors, missing evidence and precautions.
-12. Demonstrate monitoring/report/alert capability.
-
-Full walkthrough: **[docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)**
+| **[Documentation Hub](docs/README.md)** | Start here |
+| **[Architecture](docs/ARCHITECTURE.md)** | System design and data flow |
+| **[API Reference](docs/API.md)** | Backend routes and behaviour |
+| **[ML Pipeline](docs/ML_PIPELINE.md)** | Classifier + recurrence training and validation |
+| **[Data & Limitations](docs/DATA_AND_LIMITATIONS.md)** | Provenance, uncertainty and responsible claims |
+| **[Demo Guide](docs/DEMO_GUIDE.md)** | Judge-ready demo scenarios and script |
+| **[Deployment](docs/DEPLOYMENT.md)** | Local and Render deployment |
+| **[Project Structure](docs/PROJECT_STRUCTURE.md)** | Repository organization |
+| **[Roadmap](docs/ROADMAP.md)** | Validation and production roadmap |
 
 ---
 
 ## Team Timepass
-
-**Quantum University · Smart India Hackathon 2026 · SIH26162**
 
 | Member | Program |
 | --- | --- |
@@ -717,60 +315,22 @@ Full walkthrough: **[docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md)**
 | **Dipanshu Jasrotia** | B.Tech CSCQ |
 | **Dipanshu Negi** | B.Tech CSE |
 
----
-
-## Roadmap
-
-Key next engineering milestones include:
-
-- larger multi-year historical NASA FIRMS training datasets;
-- geographically held-out model evaluation;
-- verified industrial/facility datasets;
-- automated weather and wind integration;
-- stronger field-incident labels for real-world classification validation;
-- probability calibration and drift monitoring;
-- production database for multi-instance alert infrastructure;
-- richer live awareness/news sources;
-- mobile-focused experience and notification workflows.
-
-See **[docs/ROADMAP.md](docs/ROADMAP.md)**.
+**Quantum University · Smart India Hackathon 2026 · SIH26162**
 
 ---
 
-## Responsible use
+## Responsible-use statement
 
-AGNITE provides **thermal-intelligence decision support**.
-
-It should not be used as the sole basis for emergency action, industrial shutdown decisions, evacuation orders or claims about the cause of a real-world fire.
-
-For actual incidents, rely on official alerts, emergency services, field verification and qualified safety procedures.
+AGNITE is not an emergency-response authority. Satellite coverage, cloud, overpass timing, missing observations, map completeness and label quality can affect results. Always use official alerts, field verification and qualified safety procedures for real incidents.
 
 ---
 
-## Contributing
+## Support the project
 
-Contributions, bug reports and feature proposals are welcome through the structured GitHub workflow.
-
-Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before submitting changes.
-
-Security-sensitive issues should follow **[SECURITY.md](SECURITY.md)** rather than being posted publicly.
-
----
-
-## License and attribution
-
-AGNITE application code is released under the **[MIT License](LICENSE)**.
-
-External data and map layers retain their own terms and attribution requirements, including NASA FIRMS, OpenStreetMap, GeoNames and Natural Earth resources used by the project.
-
-See:
-
-- [public/data/README.md](public/data/README.md)
-- [public/data/MAP-SOURCES.md](public/data/MAP-SOURCES.md)
-
----
+If you find the idea useful, **star the repository** — it helps the project reach more builders, reviewers and collaborators.
 
 <p align="center">
-  <strong>AGNITE</strong><br/>
-  From thermal signals to explainable intelligence.
+  <a href="https://github.com/goyalparth61-netizen/Agnite/stargazers"><strong>⭐ Star AGNITE on GitHub</strong></a>
 </p>
+
+<p align="center"><sub>Built with purpose by Team Timepass.</sub></p>

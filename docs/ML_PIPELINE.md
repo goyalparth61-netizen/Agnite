@@ -2,126 +2,244 @@
 
 ## Scope
 
-AGNITE currently has two distinct intelligence paths:
+AGNITE has two separate intelligence paths and documents them independently because they answer different questions:
 
-1. **thermal-source classification** for the selected hotspot context;
-2. **future thermal-recurrence estimation** for 24h, 48h and 7d windows.
+1. **Thermal-source classification** — what pattern best fits the selected hotspot?
+2. **Historical thermal recurrence** — is another FIRMS thermal detection likely to occur in the same spatial cell within 24h, 48h or 7d?
 
-These are intentionally documented separately because they use different targets and validation assumptions.
+Neither path should be generalized into an unsupported claim of real-world fire certainty.
+
+---
 
 ## 1. Thermal-source classifier
 
-### Candidate classes
+### Classes
 
 - Industrial Fire
 - Persistent Industrial Heat
 - Forest / Natural Fire
 - Other Thermal Anomaly
+- Insufficient evidence (abstention state)
 
-### Inputs
+### Feature families
 
-The local classifier uses derived features such as:
+The current classifier uses derived features such as:
 
 - current FRP;
-- change relative to historical baseline;
-- observation-day coverage/persistence;
+- current-to-baseline ratio;
+- observed-day coverage / persistence;
 - industrial proximity;
-- land-cover category;
-- wind input when supplied.
+- forest / industrial / urban context;
+- wind when supplied.
 
 ### Model
 
-The bundled artifact is a multinomial logistic-regression experiment trained on seeded synthetic archetypes.
+The bundled artifact in `src/ai/model.json` is a **multinomial logistic-regression model trained on seeded synthetic archetypes**.
 
-This makes the classifier useful for demonstrating pipeline behaviour, explainability and abstention, but **not** for claiming field-validated fire classification accuracy.
+Current synthetic validation snapshot:
+
+| Metric | Value |
+| --- | ---: |
+| Training examples | 2,600 |
+| Validation examples | 800 |
+| Synthetic validation accuracy | 93.75% |
+| Selective precision | 99.08% |
+| Selective coverage | 81.13% |
+| Score threshold | 0.805 |
+| Margin threshold | 0.10 |
+
+The selective precision figure applies **only to synthetic held-out examples from the same generator family**. It is not field accuracy.
 
 ### Conservative abstention
 
-AGNITE withholds a class when evidence is insufficient or ambiguous. Examples include:
+AGNITE can withhold a class when evidence is insufficient or ambiguous. This is deliberate. A trustworthy `Insufficient evidence` response is preferred over a confident but unsupported label.
 
-- too few distinct passes;
-- insufficient temporal span;
-- too few baseline observations;
-- unknown land cover or industrial distance;
-- inputs outside the supported synthetic feature range;
-- insufficient separation between the leading and runner-up classes.
+---
 
-The high-precision synthetic gate is intentionally selective: stronger precision is obtained by declining uncertain cases rather than forcing every input into a class.
+## 2. Historical NASA FIRMS recurrence model v2
 
-A high precision measured on the synthetic holdout must be described exactly as a **synthetic selective-validation precision**, not real-world accuracy.
+### Prediction target
 
-## 2. Historical NASA FIRMS recurrence model
+For a selected thermal detection, estimate whether **another NASA FIRMS thermal detection** appears in the same approximately **2 km spatial cell** within:
 
-### Target
+- 24 hours;
+- 48 hours;
+- 7 days.
 
-The recurrence task is:
+This target is **not equivalent to predicting a confirmed fire incident**.
 
-> Given a thermal detection and its previous history, estimate whether another NASA FIRMS thermal detection appears in the same spatial cell within 24 hours, 48 hours or 7 days.
+### Data source
 
-This is **not equivalent to predicting a confirmed fire incident**.
+The committed v2 artifact was trained from **NASA FIRMS Standard Processing VIIRS NOAA-20 observations from 2024 and 2025**.
 
-### Data preparation
+Training preparation grouped and processed:
 
-The repository includes:
+- **1,470,795** FIRMS events/examples;
+- **438,764** spatial cells;
+- chronological train/validation split;
+- **1,176,636** training examples;
+- **294,159** validation examples;
+- validation period beginning in April 2025 and ending on 31 December 2025.
 
-- `scripts/download-firms-history.py`
-- `scripts/train-firms-recurrence-model.py`
-- `ml/requirements.txt`
+### Model family
 
-The downloader is intended to collect historical FIRMS CSV data with a NASA FIRMS MAP_KEY. The training script builds temporal features, performs a time-aware split and writes the trained artifact to:
+The current v2 model uses **standardized Logistic Regression** for each horizon. This was chosen because it is:
+
+- fast to train on large historical data;
+- portable to browser/Node inference through JSON coefficients;
+- deterministic and easy to audit;
+- compatible with transparent thresholding.
+
+### Feature engineering v2
+
+The model includes baseline thermal features plus nonlinear hand-engineered temporal, seasonal and spatial terms.
+
+Feature families include:
+
+- log current FRP;
+- FRP relative to 7d / 30d mean;
+- detection counts over 24h / 7d / 30d;
+- distinct active days;
+- time since previous detection;
+- VIIRS brightness channels when present;
+- confidence;
+- day/night indicator;
+- FIRMS static-source type;
+- log-scaled detection density;
+- persistence ratios;
+- recent-repeat indicator;
+- FRP × recurrence interactions;
+- FRP × static-source interaction;
+- night × recurrence interaction;
+- month sine/cosine;
+- hour sine/cosine;
+- coarse latitude / longitude terms and interaction.
+
+Runtime feature construction is implemented in `src/ai/recurrenceModel.ts` and must remain aligned with `scripts/train-firms-recurrence-model-v2.py`.
+
+---
+
+## 3. Chronological validation and conservative thresholds
+
+Randomly mixing future and past observations can leak temporal structure. AGNITE therefore uses a **chronological holdout**.
+
+For each horizon, the training pipeline evaluates exact score cut-points and searches for a conservative positive-decision threshold targeting **99% precision**, subject to minimum predicted-positive support.
+
+Current held-out results:
+
+| Horizon | Threshold | Precision | Recall | Predicted positives | 99% target |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 24h | 0.998510 | 98.25% | 0.24% | 114 | ❌ Not met |
+| 48h | 0.999778 | 99.06% | 0.18% | 106 | ✅ Met |
+| 7d | 0.999996 | 99.06% | 0.55% | 530 | ✅ Met |
+
+### Why recall is very low
+
+These thresholds are intentionally selective. The system is using a **high-precision alert gate**, not attempting to label every future recurrence.
+
+That means:
+
+- false positive rate is strongly constrained at the selected operating point;
+- most possible positives are not called positive;
+- the result should be explained as **high-confidence recurrence detection**, not broad coverage.
+
+This trade-off is important and must be visible in presentations and documentation.
+
+---
+
+## 4. Precision is not accuracy
+
+These statements are different:
+
+- **99% accuracy** — 99% of all evaluated examples are correct.
+- **99% precision** — among examples classified positive at a selected threshold, 99% are positive under the evaluation label definition.
+- **99% precision on thermal recurrence** — does not mean a real fire has a 99% chance of happening.
+
+AGNITE currently does **not** claim 99% real-world fire-prediction accuracy.
+
+---
+
+## 5. Training workflow
+
+Install Python dependencies:
+
+```powershell
+python -m pip install -r ml/requirements.txt
+```
+
+Set a NASA FIRMS MAP_KEY in the shell. Do not commit it:
+
+```powershell
+$env:NASA_FIRMS_MAP_KEY="<your key>"
+```
+
+Download Standard Processing history:
+
+```powershell
+python scripts/download-firms-history.py `
+  --start 2024-01-01 `
+  --end 2025-12-31 `
+  --source VIIRS_NOAA20_SP
+```
+
+Collect the downloaded files:
+
+```powershell
+$files = Get-ChildItem "data\firms\VIIRS_NOAA20_SP_2024-*.csv","data\firms\VIIRS_NOAA20_SP_2025-*.csv" |
+  Select-Object -ExpandProperty FullName
+```
+
+Train v2:
+
+```powershell
+python scripts/train-firms-recurrence-model-v2.py @files
+```
+
+The artifact is written to:
 
 ```text
 src/ai/recurrence-model.json
 ```
 
-The committed placeholder currently has `trained: false`. The application therefore falls back to the transparent heuristic future-risk simulation until a real artifact is generated.
+After training:
 
-### Feature families
+```powershell
+npm test
+npm run build
+```
 
-The recurrence inference adapter supports features including:
+Only commit the reviewed model artifact. Raw historical downloads are excluded from Git.
 
-- log FRP;
-- FRP relative to recent 7-day and 30-day means;
-- detection counts over 24h, 7d and 30d;
-- distinct active days;
-- time since previous detection;
-- brightness/thermal channels when available;
-- FIRMS confidence;
-- approximate day/night context;
-- hotspot type where available.
+---
 
-### Evaluation
+## 6. Inference path
 
-The training path uses chronological holdout validation rather than randomly mixing future and past observations.
+```mermaid
+flowchart LR
+    A[Selected FIRMS observation] --> B[Local history within spatial cell / radius]
+    B --> C[Feature engineering]
+    C --> D[Standardization]
+    D --> E24[24h Logistic Model]
+    D --> E48[48h Logistic Model]
+    D --> E7[7d Logistic Model]
+    E24 --> T24[Conservative threshold gate]
+    E48 --> T48[Conservative threshold gate]
+    E7 --> T7[Conservative threshold gate]
+    T24 --> UI[Risk / Recurrence UI]
+    T48 --> UI
+    T7 --> UI
+    UI --> AI[AGNITE AI explanation]
+```
 
-Each horizon stores:
+---
 
-- decision threshold;
-- target precision;
-- achieved precision;
-- whether the target was met.
+## 7. Heuristic fallback
 
-The current target is **0.99 precision** for the conservative positive-decision threshold.
+If a reviewed trained artifact is unavailable or invalid, AGNITE can fall back to a transparent heuristic screening layer based on:
 
-The target is not treated as achieved unless the held-out evaluation actually reaches it.
-
-### Precision vs accuracy
-
-For AGNITE, these statements mean different things:
-
-- **99% accuracy**: 99% of all evaluated samples were classified correctly. This is not currently established for real-world fire prediction.
-- **99% precision**: among samples the conservative model marks positive, 99% were positive under the evaluation label definition.
-- **99% precision on thermal recurrence** does not mean 99% probability that a real fire will occur.
-
-If 99% precision requires very high abstention or very low recall, that limitation must be reported alongside precision.
-
-## 3. Heuristic fallback
-
-When no trained recurrence artifact exists, AGNITE computes a transparent 0–100 screening index using combinations of:
-
-- current FRP intensity;
+- FRP intensity;
 - deviation from baseline;
-- recent trend;
+- trend;
 - repeated detections;
 - persistence;
 - classification index;
@@ -129,41 +247,49 @@ When no trained recurrence artifact exists, AGNITE computes a transparent 0–10
 - land cover;
 - wind input.
 
-The UI labels this path **RISK ESTIMATE / SIMULATION**. It is not a learned forecast or event probability.
+The UI labels this path **RISK ESTIMATE / SIMULATION**. It is not a learned forecast or calibrated probability.
 
-## 4. Explainability
+The current repository ships with a trained v2 recurrence artifact, so normal inference uses the real historical recurrence path.
 
-The classification engine exposes model feature contributions when it produces a class. The risk and recurrence views expose the evidence used, missing inputs and threshold status.
+---
 
-AGNITE AI is expected to explain only the evidence available for the selected hotspot and to preserve uncertainty.
+## 8. Explainability
 
-## 5. Reproducible training workflow
+AGNITE exposes:
 
-```powershell
-python -m pip install -r ml/requirements.txt
-$env:NASA_FIRMS_MAP_KEY="<your key>"
+- selected horizon;
+- model score;
+- conservative decision threshold;
+- target precision;
+- achieved validation precision;
+- whether the target was met;
+- missing evidence;
+- thermal-history context.
 
-python scripts/download-firms-history.py `
-  --start 2024-01-01 `
-  --end 2026-08-31 `
-  --source VIIRS_NOAA20_SP
+The classifier also exposes feature contributions when a class is accepted.
 
-$files = Get-ChildItem "data\firms\*.csv" | Select-Object -ExpandProperty FullName
-python scripts/train-firms-recurrence-model.py @files
-```
+AGNITE AI should explain only the evidence available for the selected hotspot and preserve uncertainty.
 
-After training, inspect every horizon's validation metrics before committing the artifact.
+---
 
-## 6. Required reporting standard
+## 9. Required reporting standard
 
-Any presentation, README, paper or demo must state:
+Any README, paper, slide or demo that reports model performance must include:
 
-- exact task being predicted;
+- exact prediction task;
 - data source;
-- train/validation split method;
+- validation method;
 - validation sample size;
-- precision, recall and threshold where relevant;
-- whether the result is synthetic, historical held-out or field validated;
-- that satellite thermal detections are not equivalent to confirmed incidents.
+- threshold;
+- precision;
+- recall / coverage where relevant;
+- whether the evaluation is synthetic, historical held-out or field validated;
+- a statement that thermal recurrence is not the same as a confirmed fire incident.
 
-No metric should be generalized beyond the dataset and target on which it was measured.
+### Approved short claim
+
+> “The 48h and 7d high-confidence thermal-recurrence gates achieved approximately 99.06% precision on chronological held-out NASA FIRMS data, with very low recall.”
+
+### Not approved
+
+> “AGNITE predicts fires with 99% accuracy.”

@@ -6,24 +6,39 @@ All notable repository-level changes are documented here.
 
 ### Added
 
-- Professional documentation set under `docs/`.
-- Architecture, API, ML, deployment, demo, project-structure, roadmap and data-limitations guides.
-- Contribution and security policies.
-- Historical NASA FIRMS recurrence-model training path and runtime adapter.
-- Conservative high-precision synthetic classifier abstention gate.
-- Automatic mapped-context suggestions for land-cover/industrial-distance review.
+- Professional documentation hub under `docs/`.
+- Judge-ready demo guide with live, built-in fallback and importable scenario paths.
+- Reproducible demo datasets for industrial spike, persistent heat and rising natural-fire-style patterns.
+- Polished README product preview and animated repository-star call to action.
+- Prominent Team Timepass / Quantum University / SIH 2026 branding.
+- Historical NASA FIRMS recurrence-model v2 trained on 2024–2025 Standard Processing VIIRS data.
+- Enhanced v2 recurrence features covering temporal density, persistence, seasonality, acquisition time and coarse spatial interactions.
+- Conservative per-horizon decision thresholds stored with the trained artifact.
 
 ### Changed
 
-- Risk UI can distinguish heuristic simulation from a trained real-data recurrence model.
-- Documentation now scopes all 99% claims to the exact validation target/evaluation rather than implying real-world fire-prediction accuracy.
-- AGNITE AI and risk documentation now reflect local/provider modes and future recurrence workflow.
+- README and documentation updated from “training-ready” to the actual committed v2 trained model state.
+- Architecture documentation now reflects the active recurrence-model path.
+- ML documentation now reports exact chronological holdout precision, recall and threshold values.
+- Demo language now clearly separates thermal recurrence from confirmed fire prediction.
+- Homepage and workspace branding now expose the AGNITE logo and a clearer user flow.
+
+### Validation
+
+Current recurrence-model v2 chronological holdout results:
+
+- 24h: 98.25% precision, 0.24% recall — 99% precision target not met.
+- 48h: 99.06% precision, 0.18% recall — target met.
+- 7d: 99.06% precision, 0.55% recall — target met.
+
+The model predicts repeat FIRMS thermal detection in the same spatial cell, not a confirmed future fire incident.
 
 ### Reliability
 
 - CI verifies tests and production build.
-- Model tests verify conservative abstention and finite/bounded outputs.
-- Node ESM recurrence-module imports fixed for CI verification.
+- NASA-feed tests cover parsing, provenance, stale cache, size limits, timeouts and static serving safety.
+- Intelligence tests cover temporal isolation, recurrence, assistant fallback and risk bounds.
+- Frontend tests cover provenance labels, risk windows, optional location, documentation anchors and alert forms.
 
 ## 0.1.0
 

@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+  <title id="title">AGNITE thermal intelligence workspace preview</title>
+  <desc id="desc">Dark interface preview showing satellite feed, India map, selected hotspot analysis, recurrence cards and AGNITE AI.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1016"/>
+      <stop offset="1" stop-color="#151d25"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0c48b"/>
+      <stop offset="1" stop-color="#e58b63"/>
+    </linearGradient>
+    <linearGradient id="map" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17212b"/>
+      <stop offset="1" stop-color="#202c36"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="soft"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity=".35"/></filter>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M 34 0 L 0 0 0 34" fill="none" stroke="#7f95aa" stroke-opacity=".07" stroke-width="1"/></pattern>
+  </defs>
+
+  <rect width="1440" height="820" rx="28" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1438" height="818" rx="27" fill="none" stroke="#2f3944"/>
+
+  <!-- topbar -->
+  <rect x="26" y="24" width="1388" height="74" rx="18" fill="#111820" stroke="#2c3742" filter="url(#soft)"/>
+  <rect x="44" y="37" width="48" height="48" rx="13" fill="#181d22" stroke="#e6b477" stroke-opacity=".55"/>
+  <path d="M69 48c-9 8-13 16-7 25 3 5 7 7 11 7 8 0 14-6 14-14 0-7-4-12-10-17 1 5-2 8-4 10-1-4-2-7-4-11z" fill="url(#amber)" filter="url(#glow)"/>
+  <text x="108" y="59" fill="#f4f1ea" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="4">AGNITE</text>
+  <text x="108" y="78" fill="#9eabb7" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.4">THERMAL INTELLIGENCE WORKSPACE</text>
+  <rect x="1134" y="44" width="124" height="34" rx="17" fill="#12231f" stroke="#3a7668"/>
+  <circle cx="1153" cy="61" r="5" fill="#79d4b6"/>
+  <text x="1166" y="65" fill="#a6e9d3" font-family="Arial, sans-serif" font-size="10" font-weight="700">NASA FIRMS / NRT</text>
+  <rect x="1270" y="44" width="126" height="34" rx="8" fill="#202a34" stroke="#3a4652"/>
+  <text x="1298" y="65" fill="#dfe5ea" font-family="Arial, sans-serif" font-size="11" font-weight="700">OVERVIEW ↗</text>
+
+  <!-- sidebar -->
+  <rect x="26" y="116" width="218" height="678" rx="18" fill="#111820" stroke="#2c3742"/>
+  <text x="48" y="150" fill="#87afd4" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5">MISSION WORKSPACE</text>
+  <g font-family="Arial, sans-serif" font-size="12" fill="#9da9b4">
+    <rect x="42" y="170" width="186" height="42" rx="10" fill="#202a34" stroke="#4b5a69"/><text x="63" y="196" fill="#f1eee8" font-weight="700">◉  Satellite feed</text>
+    <text x="63" y="244">◆  AGNITE AI</text>
+    <text x="63" y="286">◌  Risk</text>
+    <text x="63" y="328">◉  Alerts</text>
+    <text x="63" y="370">↺  Saved reports</text>
+    <text x="63" y="412">⇧  Import data</text>
+    <text x="63" y="454">✦  Ask AGNITE</text>
+  </g>
+  <line x1="43" y1="486" x2="226" y2="486" stroke="#2c3742"/>
+  <text x="48" y="518" fill="#e6b477" font-family="Arial, sans-serif" font-size="11" font-weight="700">TRACEABLE EVIDENCE</text>
+  <text x="48" y="542" fill="#8e9aa5" font-family="Arial, sans-serif" font-size="10">Satellite detections</text>
+  <text x="48" y="560" fill="#8e9aa5" font-family="Arial, sans-serif" font-size="10">Historical context</text>
+  <text x="48" y="578" fill="#8e9aa5" font-family="Arial, sans-serif" font-size="10">Conservative recurrence</text>
+
+  <!-- main heading -->
+  <text x="276" y="145" fill="#87afd4" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5">INDIA REGION / THERMAL OBSERVATIONS</text>
+  <text x="276" y="183" fill="#f4f1ea" font-family="Arial, sans-serif" font-size="30" font-weight="700">Satellite feed</text>
+  <text x="276" y="208" fill="#9da9b4" font-family="Arial, sans-serif" font-size="12">Select a hotspot, compare its history and follow the evidence.</text>
+
+  <!-- map -->
+  <rect x="276" y="232" width="720" height="360" rx="16" fill="url(#map)" stroke="#34414d" filter="url(#soft)"/>
+  <rect x="276" y="232" width="720" height="360" rx="16" fill="url(#grid)"/>
+  <path d="M624 280c-25 10-51 29-72 54-18 22-26 48-18 72 7 22 28 36 42 55 11 14 13 34 25 47 12 13 36 16 52 7 18-10 28-31 43-47 18-20 47-33 57-58 11-28-2-61-24-81-20-19-48-28-74-40-12-5-20-13-31-9z" fill="#263847" stroke="#6d8499" stroke-opacity=".65" stroke-width="2"/>
+  <circle cx="614" cy="361" r="12" fill="#e6b477" filter="url(#glow)"/>
+  <circle cx="614" cy="361" r="4" fill="#fff0d5"/>
+  <circle cx="696" cy="426" r="9" fill="#df7f6d" filter="url(#glow)"/>
+  <circle cx="562" cy="458" r="7" fill="#87afd4"/>
+  <circle cx="748" cy="334" r="6" fill="#e6b477"/>
+  <rect x="298" y="252" width="220" height="66" rx="12" fill="#111820" fill-opacity=".95" stroke="#364452"/>
+  <text x="316" y="275" fill="#87afd4" font-family="Arial, sans-serif" font-size="9" font-weight="700">SELECTED HOTSPOT</text>
+  <text x="316" y="296" fill="#f4f1ea" font-family="Arial, sans-serif" font-size="14" font-weight="700">21.1466, 79.0889</text>
+  <text x="316" y="312" fill="#9da9b4" font-family="Arial, sans-serif" font-size="9">FRP 88 MW · rising thermal signal</text>
+
+  <!-- analysis card -->
+  <rect x="1016" y="232" width="398" height="360" rx="16" fill="#111820" stroke="#34414d" filter="url(#soft)"/>
+  <text x="1042" y="262" fill="#87afd4" font-family="Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="1.2">AGNITE ANALYSIS</text>
+  <text x="1042" y="292" fill="#f4f1ea" font-family="Arial, sans-serif" font-size="21" font-weight="700">Signal + history + context</text>
+  <rect x="1042" y="314" width="346" height="62" rx="12" fill="#1a222b" stroke="#34414d"/>
+  <text x="1058" y="337" fill="#9da9b4" font-family="Arial, sans-serif" font-size="10">Historical baseline</text>
+  <text x="1058" y="360" fill="#f4f1ea" font-family="Arial, sans-serif" font-size="18" font-weight="700">29.4 MW → 88 MW</text>
+  <text x="1280" y="360" fill="#efb483" font-family="Arial, sans-serif" font-size="11" font-weight="700">RISING</text>
+  <rect x="1042" y="390" width="108" height="82" rx="12" fill="#1a222b" stroke="#34414d"/>
+  <rect x="1160" y="390" width="108" height="82" rx="12" fill="#1a222b" stroke="#34414d"/>
+  <rect x="1278" y="390" width="110" height="82" rx="12" fill="#1a222b" stroke="#34414d"/>
+  <text x="1055" y="413" fill="#9da9b4" font-family="Arial" font-size="9">PASSES</text><text x="1055" y="445" fill="#f4f1ea" font-family="Arial" font-size="22" font-weight="700">6</text>
+  <text x="1173" y="413" fill="#9da9b4" font-family="Arial" font-size="9">PERSISTENCE</text><text x="1173" y="445" fill="#f4f1ea" font-family="Arial" font-size="22" font-weight="700">100</text>
+  <text x="1291" y="413" fill="#9da9b4" font-family="Arial" font-size="9">CONTEXT</text><text x="1291" y="445" fill="#f4f1ea" font-family="Arial" font-size="16" font-weight="700">Industrial</text>
+  <text x="1042" y="505" fill="#e6b477" font-family="Arial" font-size="10" font-weight="700">EXPLAINABLE OUTPUT</text>
+  <text x="1042" y="529" fill="#9da9b4" font-family="Arial" font-size="10">Classification, missing evidence and reasons stay visible.</text>
+  <rect x="1042" y="548" width="150" height="26" rx="13" fill="#2b2119" stroke="#7a5838"/><text x="1061" y="566" fill="#efc08a" font-family="Arial" font-size="9" font-weight="700">HIGH ATTENTION</text>
+
+  <!-- bottom cards -->
+  <text x="276" y="630" fill="#87afd4" font-family="Arial" font-size="9" font-weight="700" letter-spacing="1.2">THERMAL RECURRENCE MODEL v2.0.0</text>
+  <g filter="url(#soft)">
+    <rect x="276" y="648" width="216" height="116" rx="14" fill="#111820" stroke="#34414d"/>
+    <rect x="510" y="648" width="216" height="116" rx="14" fill="#111820" stroke="#34414d"/>
+    <rect x="744" y="648" width="216" height="116" rx="14" fill="#111820" stroke="#34414d"/>
+    <rect x="978" y="648" width="436" height="116" rx="14" fill="#111820" stroke="#34414d"/>
+  </g>
+  <text x="298" y="674" fill="#9da9b4" font-family="Arial" font-size="9">NEXT 24 HOURS</text><text x="298" y="708" fill="#f4f1ea" font-family="Arial" font-size="22" font-weight="700">98.25%</text><text x="298" y="730" fill="#d08b76" font-family="Arial" font-size="9" font-weight="700">99% TARGET NOT MET</text><text x="298" y="748" fill="#7f8b96" font-family="Arial" font-size="8">selective held-out precision</text>
+  <text x="532" y="674" fill="#9da9b4" font-family="Arial" font-size="9">NEXT 48 HOURS</text><text x="532" y="708" fill="#f4f1ea" font-family="Arial" font-size="22" font-weight="700">99.06%</text><text x="532" y="730" fill="#7bd0b3" font-family="Arial" font-size="9" font-weight="700">TARGET MET</text><text x="532" y="748" fill="#7f8b96" font-family="Arial" font-size="8">precision · recall 0.18%</text>
+  <text x="766" y="674" fill="#9da9b4" font-family="Arial" font-size="9">NEXT 7 DAYS</text><text x="766" y="708" fill="#f4f1ea" font-family="Arial" font-size="22" font-weight="700">99.06%</text><text x="766" y="730" fill="#7bd0b3" font-family="Arial" font-size="9" font-weight="700">TARGET MET</text><text x="766" y="748" fill="#7f8b96" font-family="Arial" font-size="8">precision · recall 0.55%</text>
+  <text x="1004" y="674" fill="#87afd4" font-family="Arial" font-size="9" font-weight="700">ASK AGNITE AI</text>
+  <text x="1004" y="700" fill="#f4f1ea" font-family="Arial" font-size="13" font-weight="700">“Why did this signal change?”</text>
+  <text x="1004" y="723" fill="#9da9b4" font-family="Arial" font-size="10">Grounded explanation from selected-site evidence,</text>
+  <text x="1004" y="741" fill="#9da9b4" font-family="Arial" font-size="10">history, context and model limitations.</text>
+
+  <text x="720" y="801" text-anchor="middle" fill="#65717c" font-family="Arial, sans-serif" font-size="9" letter-spacing="1.4">CURRENT AGNITE INTERFACE PREVIEW · TEAM TIMEPASS · SIH 2026</text>
+</svg>

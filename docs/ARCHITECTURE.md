@@ -2,157 +2,268 @@
 
 ## Purpose
 
-AGNITE is an India-focused thermal-intelligence application that combines satellite detections, local/historical evidence, mapped context, explainable analysis, risk/recurrence windows and a grounded assistant.
+AGNITE is an India-focused thermal-intelligence platform that turns satellite thermal detections into a structured decision-support workflow:
 
-The application is designed around the sequence:
+**Detect → contextualize → compare history → classify/abstain → estimate recurrence → explain → monitor.**
 
-**Detect → contextualize → compare with history → classify/abstain → estimate recurrence/risk → explain → monitor.**
+The architecture is intentionally transparent: provenance, model limitations, stale data, missing context and uncertainty are visible rather than hidden.
+
+---
 
 ## High-level architecture
 
-```text
-                         ┌──────────────────────────┐
-                         │        User / Judge      │
-                         └────────────┬─────────────┘
-                                      │
-                                      v
-                     ┌────────────────────────────────┐
-                     │ React + Vite + TypeScript UI   │
-                     │ Home / India Map / Workspace   │
-                     └───────┬─────────┬──────────────┘
-                             │         │
-               /api/firms    │         │ /api/site-context
-                             v         v
-                  ┌──────────────┐  ┌──────────────────┐
-                  │ NASA FIRMS   │  │ OSM / Overpass   │
-                  │ NRT thermal  │  │ mapped context   │
-                  └──────┬───────┘  └────────┬─────────┘
-                         │                   │
-                         └──────────┬────────┘
-                                    v
-                    ┌──────────────────────────────┐
-                    │ Observation validation       │
-                    │ provenance + spatial filter  │
-                    │ time window + de-duplication │
-                    └──────────────┬───────────────┘
-                                   v
-                  ┌──────────────────────────────────┐
-                  │ Historical intelligence          │
-                  │ FRP baseline / trend / recurrence│
-                  │ persistence / nearby observations│
-                  └──────────────┬───────────────────┘
-                                 │
-                  ┌──────────────┴──────────────┐
-                  v                             v
-       ┌─────────────────────────┐  ┌────────────────────────┐
-       │ Thermal classifier      │  │ Future-risk layer      │
-       │ + conservative abstain  │  │ heuristic OR trained   │
-       │ explainable features    │  │ recurrence artifact    │
-       └────────────┬────────────┘  └───────────┬────────────┘
-                    └───────────────┬────────────┘
-                                    v
-                         ┌──────────────────────┐
-                         │ AGNITE AI            │
-                         │ evidence-grounded    │
-                         │ local/provider mode  │
-                         └──────────┬───────────┘
-                                    v
-                    ┌──────────────────────────────┐
-                    │ Reports / Alerts / Guidance  │
-                    │ CSV/JSON export / monitoring │
-                    └──────────────────────────────┘
+```mermaid
+flowchart TD
+    U[User / Judge] --> UI[React + TypeScript + Vite]
+    UI --> W[India Thermal Workspace]
+
+    W --> F[/api/firms/]
+    W --> C[/api/site-context/]
+    W --> A[/api/agnite/ask/]
+    W --> N[/api/alerts/*/]
+
+    F --> NASA[NASA FIRMS]
+    C --> OSM[OpenStreetMap / Overpass]
+
+    NASA --> O[Observation validation\nprovenance · normalize · dedupe · cache]
+    OSM --> CTX[Mapped site context]
+
+    O --> H[Historical Intelligence\nbaseline · trend · recurrence · persistence]
+    CTX --> H
+
+    H --> CL[Explainable classifier\n+ conservative abstention]
+    H --> RM[Recurrence Model v2\n24h · 48h · 7d]
+
+    CL --> E[Evidence + uncertainty]
+    RM --> E
+    E --> AI[AGNITE AI\nlocal grounded or provider mode]
+
+    AI --> OUT[Risk · explanation · safety guidance]
+    OUT --> SAVE[Saved reports · watches · exports · optional email alerts]
 ```
+
+---
 
 ## Frontend
 
-The frontend is a React/Vite single-page application using hash navigation. Major surfaces are:
+The frontend is a React/Vite single-page application using hash-based navigation.
 
-- **Home:** product narrative, India place discovery, documentation, awareness and team sections.
-- **Workspace / Feed:** NASA observations, map exploration, filtering and site selection.
-- **AGNITE AI / Analysis:** site context, classifier output, evidence, contributions and thermal history.
-- **Risk:** 24h, 48h and 7d windows. The interface distinguishes heuristic simulation from a trained recurrence model.
-- **Alerts:** in-browser watches and optional confirmed email subscriptions.
-- **Saved reports / Import / Assistant:** persistence, local CSV workflows and evidence-grounded Q&A.
+### Primary surfaces
 
-Key frontend modules live under `src/pages`, `src/components`, `src/hooks`, `src/ai` and `src/styles`.
+- **Home** — product story, 60-second user flow, project preview and team identity.
+- **Platform** — product capability explanation.
+- **Intelligence** — explainable analysis concepts.
+- **Risk & Alerts** — recurrence, risk and monitoring concepts.
+- **Learn** — documentation / awareness.
+- **About** — Team Timepass and project mission.
+- **Workspace** — operational surface for feed, analysis, risk, alerts, reports, import and AGNITE AI.
+
+### Workspace tabs
+
+```text
+Satellite feed
+AGNITE AI / Analysis
+Risk
+Alerts
+Saved reports
+Import data
+Ask AGNITE
+```
+
+Key frontend modules:
+
+- `src/pages/`
+- `src/components/`
+- `src/hooks/`
+- `src/ai/`
+- `src/styles/`
+
+---
 
 ## Backend
 
-The production backend is a lightweight Node.js HTTP server in `server/index.mjs`.
+The production backend is a lightweight Node.js ESM HTTP server in `server/index.mjs`.
 
 Responsibilities:
 
 - retrieve and normalize fixed NASA FIRMS public feeds;
-- enforce query allowlists, response size limits and timeouts;
+- validate sensor/time-window query parameters;
+- apply bounded India-region filtering;
+- deduplicate concurrent upstream requests;
 - cache successful FIRMS responses for ten minutes;
-- return stale cache explicitly when upstream retrieval fails;
-- serve OpenStreetMap/Overpass context through a bounded proxy;
-- handle AGNITE AI provider requests;
-- manage optional confirmed email alerts and contact delivery;
-- serve the compiled frontend from `dist/` in production.
+- surface stale cache explicitly after upstream failure;
+- proxy bounded OpenStreetMap / Overpass site-context queries;
+- handle AGNITE AI provider calls server-side;
+- manage optional confirmed email-alert subscriptions;
+- serve the compiled frontend from `dist/`.
 
-## Intelligence layer
+The single-service topology keeps provider keys out of the browser and avoids unnecessary CORS complexity.
 
-### Classification
+---
 
-`src/ai/thermalEngine.ts` validates observations, builds a local temporal/spatial feature vector and applies the bundled multinomial classifier. The engine can abstain when history, context, input range or class separation is insufficient.
+## Data and provenance layer
 
-The bundled classifier artifact is synthetic-trained and must not be represented as field-validated.
+Every observation is assigned a source category:
 
-### Historical intelligence
+- `firms` — NASA FIRMS data returned by the server;
+- `imported` — user-uploaded CSV data;
+- `manual` — manually entered local data;
+- `demo` — explicitly simulated demonstration data.
 
-`src/ai/intelligence.ts` summarizes observations around a selected site, including:
+AGNITE never silently changes one provenance class into another. Simulated and non-simulated histories are isolated.
+
+### NASA reliability controls
+
+- fixed upstream source allowlist;
+- query allowlist;
+- response-size limits;
+- timeout handling;
+- de-duplication;
+- ten-minute cache;
+- explicit stale-cache state;
+- no synthetic replacement after NASA failure.
+
+---
+
+## Historical intelligence
+
+`src/ai/intelligence.ts` summarizes evidence around the selected site.
+
+Derived signals include:
 
 - previous detections;
-- distinct passes;
-- FRP baseline and anomaly;
-- trend;
-- recurrence/persistence indicators;
-- contextual factors and missing evidence.
+- distinct satellite passes;
+- peak and average FRP;
+- historical baseline FRP;
+- current deviation from baseline;
+- recent rising / stable / falling trend;
+- recurrence per day;
+- persistence across observed days;
+- missing contextual evidence;
+- relevant saved-report history.
 
-### Recurrence model
+This layer supplies consistent context to both the classifier and recurrence model.
 
-`src/ai/recurrenceModel.ts` is the inference adapter for a separately trained NASA FIRMS historical recurrence artifact in `src/ai/recurrence-model.json`.
+---
 
-If the artifact is not trained, AGNITE falls back to a transparent heuristic simulation. The placeholder artifact currently reports `trained: false`; this prevents the UI from presenting an untrained model as real prediction.
+## Thermal classification
 
-## Data flow and provenance
+`src/ai/thermalEngine.ts` applies the bundled four-class multinomial classifier.
 
-Each observation carries a source category such as `firms`, `imported`, `manual` or `demo`. AGNITE deliberately keeps simulated and non-simulated histories separate.
+Classes:
 
-NASA FIRMS data is never replaced with demo data after a network failure. The server either returns real fresh data, explicitly stale cached data, or an error.
+- Industrial Fire
+- Persistent Industrial Heat
+- Forest / Natural Fire
+- Other Thermal Anomaly
 
-## Reliability controls
+The classifier is **synthetic-trained** and used to demonstrate explainable classification and abstention. It should not be presented as field-validated industrial-fire identification.
 
-The architecture includes:
+The engine can return **Insufficient evidence** when history, context, score or margin requirements are not satisfied.
 
-- strict coordinate, date and numeric validation;
-- duplicate removal;
-- spatial filtering around selected locations;
-- bounded request and response sizes;
-- fixed upstream NASA URLs;
-- timeouts and in-memory cache;
-- static path traversal protection;
-- model abstention;
-- source labels and model limitations in the UI;
-- deterministic fixture-based tests;
-- CI running tests and production build on pushes.
+---
+
+## Historical recurrence model v2
+
+`src/ai/recurrenceModel.ts` loads `src/ai/recurrence-model.json`.
+
+The current artifact is:
+
+```text
+name     AGNITE NASA FIRMS Thermal Recurrence Model
+version  2.0.0
+trained  true
+source   Historical NASA FIRMS Standard Processing VIIRS observations
+```
+
+Prediction target:
+
+> another FIRMS thermal detection in the same approximately 2 km spatial cell within 24h, 48h or 7d.
+
+Current high-confidence validation:
+
+| Horizon | Precision | Recall | Target |
+| --- | ---: | ---: | --- |
+| 24h | 98.25% | 0.24% | 99% not met |
+| 48h | 99.06% | 0.18% | 99% met |
+| 7d | 99.06% | 0.55% | 99% met |
+
+The very low recall is an explicit consequence of conservative thresholding.
+
+---
+
+## AGNITE AI
+
+AGNITE AI receives structured selected-site evidence rather than unrestricted raw application state.
+
+Two modes exist:
+
+### Local grounded mode
+- deterministic evidence-aware answers;
+- works without an external LLM key;
+- preserves source labels and limitations.
+
+### External provider mode
+- server-side OpenAI-compatible provider;
+- receives a bounded conversation window and selected-site evidence;
+- falls back to local mode on provider/network failure.
+
+Provider secrets are never required in the browser bundle.
+
+---
+
+## Alerts and reporting
+
+The workspace supports:
+
+- saved reports in browser storage;
+- watched locations and FRP thresholds;
+- imported/manual observations;
+- CSV / JSON / visual export workflows;
+- optional confirmation-based email alerts;
+- contact delivery when configured.
+
+Production email alerts are based on real supported feed data, not demo rows.
+
+---
 
 ## Deployment topology
 
-The preferred production topology is one Node service:
-
-```text
-Internet
-   │
-   v
-Render / Node service
-   ├── serves dist/ frontend
-   ├── /api/firms
-   ├── /api/site-context
-   ├── /api/agnite/ask
-   ├── /api/alerts/*
-   └── /api/contact
+```mermaid
+flowchart LR
+    B[Browser] --> R[Render / Node Service]
+    R --> STATIC[dist/ frontend]
+    R --> FIRMS[/api/firms]
+    R --> SITE[/api/site-context]
+    R --> ASK[/api/agnite/ask]
+    R --> ALERTS[/api/alerts/*]
+    R --> CONTACT[/api/contact]
+    FIRMS --> NASA[NASA FIRMS]
+    SITE --> OSM[OSM / Overpass]
+    ASK --> LLM[Optional OpenAI-compatible provider]
+    ALERTS --> EMAIL[Optional email provider]
 ```
 
-This avoids cross-origin complexity and keeps provider keys server-side.
+---
+
+## Security and reliability controls
+
+- strict coordinate/date/numeric validation;
+- bounded file import sizes;
+- duplicate removal;
+- spatial filtering;
+- fixed upstream URLs;
+- server-side secrets;
+- origin checks on sensitive endpoints;
+- static path traversal protection;
+- source/provenance labels;
+- model abstention;
+- confidence/limitation messaging;
+- deterministic test fixtures;
+- GitHub Actions running tests and production build.
+
+---
+
+## Design principle
+
+AGNITE favors **traceable evidence over impressive-looking certainty**. Every output should be explainable back to source, history, context, model state and missing evidence.
