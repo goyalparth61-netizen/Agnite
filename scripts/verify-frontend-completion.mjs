@@ -26,7 +26,8 @@ try {
     assert.match(await render('components/intelligence/HotspotSummary.tsx',{data:buildIntelligence(input,[input],context,null)}),new RegExp(label));
   }
   const risk=await render('components/risk/RiskOverview.tsx',{data});
-  for(const text of ['NEXT 24 HOURS','NEXT 48 HOURS','NEXT 7 DAYS','SIMULATION','Contributing factors','SAFETY PRECAUTIONS']) assert.ok(risk.includes(text));
+  const expectedPredictionLabel=data.predictionMode==='real-recurrence-model'?'REAL-DATA THERMAL RECURRENCE MODEL':'SIMULATION';
+  for(const text of ['NEXT 24 HOURS','NEXT 48 HOURS','NEXT 7 DAYS',expectedPredictionLabel,'Contributing factors','SAFETY PRECAUTIONS']) assert.ok(risk.includes(text),`Risk overview missing expected text: ${text}`);
   assert.equal((risk.match(/role="meter"/g)||[]).length,3);
   const alerts=await render('components/alerts/NearbyAlerts.tsx');
   assert.match(alerts,/Enable Nearby Alerts/);
