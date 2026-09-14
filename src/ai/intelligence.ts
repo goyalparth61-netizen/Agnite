@@ -1,5 +1,6 @@
 import type { AnalysisContext, AnalysisResult, Observation } from './thermalEngine';
 import type { SavedReport } from './workspaceData';
+import { recurrenceModelStatus, recurrencePredictions } from './recurrenceModel';
 
 const DAY = 86400000;
 const mean = (v: number[]) => v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
@@ -39,6 +40,8 @@ export function summarizeLocation(selected: Observation | null, observations: Ob
     anomalyPercent:baseline!==null&&baseline>0&&selected?100*(selected.frp-baseline)/baseline:null, trend};
 }
 export type LocationHistory = ReturnType<typeof summarizeLocation>;
+
+/** Transparent fallback used until a real historical recurrence artifact is trained. */
 export function estimateRisk(history: LocationHistory, context: AnalysisContext, report: AnalysisResult | null) {
   if(history.currentFrp===null) return [];
   const factors = [
@@ -61,9 +64,51 @@ export function estimateRisk(history: LocationHistory, context: AnalysisContext,
       explanation:'RISK ESTIMATE / SIMULATION anchored to the selected acquisition, assuming trend continuation. Sum of displayed heuristic points, clamped to 0–100. Confidence describes evidence coverage, not calibrated accuracy. Not a fire probability, weather forecast or exact event date.'};
   });
 }
+
+function estimateWithRecurrenceModel(selected: Observation | null, history: LocationHistory, context: AnalysisContext) {
+  const learned = recurrencePredictions(selected, history, context);
+  if (!learned?.length) return null;
+  return learned.map((prediction) => {
+    const riskScore = Math.round(bounded(prediction.score * 100));
+    const highPrecisionDecision = prediction.targetMet && prediction.score >= prediction.threshold;
+    const missingEvidence = [
+      history.distinctPasses < 3 ? 'Limited recent history at this location' : null,
+      prediction.targetMet ? null : '99% validation-precision target was not achieved for this horizon',
+      highPrecisionDecision ? null : 'Model score is below the conservative high-precision decision threshold',
+      'Thermal recurrence is not the same as a verified fire incident',
+    ].filter((value): value is string => Boolean(value));
+    return {
+      window: prediction.window,
+      riskScore,
+      level: riskScore>=80?'CRITICAL':riskScore>=60?'HIGH':riskScore>=30?'MODERATE':'LOW',
+      confidence: highPrecisionDecision ? 'HIGH' : prediction.targetMet ? 'MODERATE' : 'LOW',
+      contributingFactors: [
+        {label:'NASA FIRMS historical recurrence model score',points:Math.round(prediction.score*1000)/10},
+        {label:'Conservative decision threshold',points:Math.round(prediction.threshold*1000)/10},
+        {label:`Recent trend: ${history.trend}`,points:history.trend==='rising'?10:history.trend==='falling'?-10:0},
+        {label:'Repeated historical passes',points:Math.min(10,history.repeatedDetections)},
+      ],
+      missingEvidence,
+      explanation:`REAL-DATA THERMAL RECURRENCE MODEL v${prediction.modelVersion}. Score estimates the tendency for another FIRMS thermal detection in this spatial cell within ${prediction.window}; it is not a calibrated probability of a confirmed fire. Validation precision at the conservative threshold: ${prediction.achievedPrecision===null?'unavailable':(prediction.achievedPrecision*100).toFixed(1)+'%'}. Target: ${(prediction.targetPrecision*100).toFixed(0)}%.`,
+    };
+  });
+}
+
 export function buildIntelligence(selected: Observation|null, observations: Observation[], context: AnalysisContext, report: AnalysisResult|null, saved: SavedReport[] = []) {
   const relevant = selected ? saved.filter(s=>s.observations?.some(r=>distance(r,selected)<=5&&(r.source==='demo')===(selected.source==='demo'))) : [];
   const history=summarizeLocation(selected,[...observations,...relevant.flatMap(s=>s.observations)]);
-  return {selected,context,report,history,predictions:estimateRisk(history,context,report),savedReports:relevant.map(s=>({id:s.id,createdAt:s.createdAt,classification:s.classification,summary:s.summary,evidence:s.report.evidence})),limitations:'Loaded thermal detections only, not verified incidents. Missing passes and non-detections are unknown. Baseline is mean FRP of prior distinct passes within 5 km; later observations excluded. Simulated and non-simulated history are separated.'};
+  const learnedPredictions = estimateWithRecurrenceModel(selected, history, context);
+  const recurrenceModel = recurrenceModelStatus();
+  return {
+    selected,
+    context,
+    report,
+    history,
+    predictions: learnedPredictions ?? estimateRisk(history,context,report),
+    predictionMode: learnedPredictions ? 'real-recurrence-model' as const : 'heuristic-simulation' as const,
+    recurrenceModel,
+    savedReports:relevant.map(s=>({id:s.id,createdAt:s.createdAt,classification:s.classification,summary:s.summary,evidence:s.report.evidence})),
+    limitations:`Loaded thermal detections only, not verified incidents. Missing passes and non-detections are unknown. Baseline is mean FRP of prior distinct passes within 5 km; later observations excluded. Simulated and non-simulated history are separated. ${learnedPredictions?'Future windows use a historically trained thermal-recurrence model; recurrence is not a confirmed-fire forecast.':'Future windows use a transparent heuristic simulation until a real historical recurrence artifact is trained.'}`
+  };
 }
 export type Intelligence = ReturnType<typeof buildIntelligence>;
