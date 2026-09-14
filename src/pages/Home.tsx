@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { ArrowUpRight, BookOpen, BrainCircuit, Map, ShieldAlert } from "lucide-react";
+import { ArrowUpRight, BrainCircuit, Map, MessageSquare, ShieldAlert } from "lucide-react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import Hero from "../components/home/Hero";
@@ -10,10 +10,10 @@ import FinalCTA from "../components/home/FinalCTA";
 const DashboardPreview = lazy(() => import("../components/home/DashboardPreview"));
 
 const paths = [
-  { icon: Map, title: "Explore the platform", text: "Open the India thermal map and inspect satellite detections.", href: "#/platform" },
-  { icon: BrainCircuit, title: "Understand intelligence", text: "See classification, history, explainability and AGNITE AI.", href: "#/intelligence" },
-  { icon: ShieldAlert, title: "Check risk & alerts", text: "Review 24h, 48h and 7-day screening windows and monitoring.", href: "#/risk" },
-  { icon: BookOpen, title: "Read documentation", text: "Learn the architecture, data sources, limitations and awareness material.", href: "#/learn" },
+  { icon: Map, title: "1. Open the live map", text: "Load NASA FIRMS detections for India and select the hotspot you want to investigate.", href: "#/workspace?tab=feed" },
+  { icon: BrainCircuit, title: "2. Analyze the hotspot", text: "Check thermal history, context, classification, evidence and what information is still missing.", href: "#/workspace?tab=analysis" },
+  { icon: ShieldAlert, title: "3. Review future recurrence", text: "See the 24h, 48h and 7-day thermal-recurrence model output and its confidence gate.", href: "#/workspace?tab=risk" },
+  { icon: MessageSquare, title: "4. Ask AGNITE AI", text: "Ask why it was classified that way, what happened before and what action should be considered next.", href: "#/workspace?tab=assistant" },
 ];
 
 export default function Home() {
@@ -29,9 +29,9 @@ export default function Home() {
 
         <section className="section container quick-start" aria-labelledby="quick-start-title">
           <div className="quick-start-head">
-            <span className="eyebrow"><span className="short-line" /> START HERE</span>
-            <h2 id="quick-start-title">Choose what you want to do.</h2>
-            <p>AGNITE is now split into focused pages so you can reach the right tool without scrolling through everything.</p>
+            <span className="eyebrow"><span className="short-line" /> USE AGNITE IN 60 SECONDS</span>
+            <h2 id="quick-start-title">Start here — this is the actual user flow.</h2>
+            <p>You do not have to jump between every page. Use these four steps for the complete demo: map → analysis → recurrence risk → AGNITE AI.</p>
           </div>
           <div className="quick-start-grid">
             {paths.map(({ icon: Icon, title, text, href }) => (
