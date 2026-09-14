@@ -24,7 +24,7 @@ export function localAnswer(question: string, data: Intelligence): string {
   const header=`${s.latitude.toFixed(4)}, ${s.longitude.toFixed(4)} | ${s.observedAt} | source: ${s.source==='demo'?'SIMULATED DATA':s.source==='firms'?'NASA FIRMS':s.source==='imported'?'IMPORTED':'LOCAL / MANUAL'}`;
   const history=`${h.historicalDetections} historical thermal detections; ${h.distinctPasses} distinct passes including current. Earliest: ${h.earliest??'unavailable'}. Latest: ${h.latest??'unavailable'}. Peak FRP: ${h.peakFrp?.toFixed(1)??'unavailable'} MW; average: ${h.averageFrp?.toFixed(1)??'unavailable'} MW. Baseline: ${h.baselineFrp?.toFixed(1)??'unavailable'} MW; selected signal: ${s.frp} MW; deviation: ${h.anomalyPercent?.toFixed(1)??'unavailable'}%. Trend: ${h.trend}. Persistence: ${h.persistenceScore??'unavailable'} /100. Recurrence: ${h.recurrencePerDay?.toFixed(2)??'unavailable'} repeated passes/day. Saved reports: ${data.savedReports.length}.`;
   const classification=`Classification: ${report?.classification??'unavailable — Run site analysis first'}. Current screening risk: ${report?.risk.index??'unavailable'}/100. ${report?.evidence.map(e=>`${e.label}: ${e.value} — ${e.detail}`).join('\n')??'Analysis evidence unavailable.'} Classification is experimental, not a confirmed cause.`;
-  const prediction=predictions.length?predictions.map(p=>`${p.window}: ${p.riskScore}/100 (${p.level}); evidence confidence ${p.confidence}.\nWhy: ${p.contributingFactors.map(f=>`${f.points>=0?'+':''}${f.points} ${f.label}`).join('; ')||'No listed factors'}.\nMissing evidence: ${p.missingEvidence.join('; ')||'No listed input gaps; field validation is still unavailable'}.\n${p.explanation}`).join('\n\n'):'Future risk windows are unavailable for this selection.';
+  const prediction=predictions.length?predictions.map(p=>`${p.window}: ${p.riskScore}/100 (${p.level}); evidence confidence ${p.confidence}.\nWHY THIS SCORE?\n${p.contributingFactors.map(f=>`${f.points>=0?'+':''}${f.points} ${f.label}`).join('; ')||'No listed factors'}.\nMissing evidence: ${p.missingEvidence.join('; ')||'No listed input gaps; field validation is still unavailable'}.\n${p.explanation}`).join('\n\n'):'Future risk windows are unavailable for this selection.';
   let answer: string;
   if(/missing|confidence|uncertain/.test(q)) answer=`Missing evidence: ${predictions[0]?.missingEvidence.join('; ')||'No listed input gaps'}. Verified incident labels, ground verification, complete historical coverage, weather forecasts and validated predictive accuracy may be unavailable. Brightness: ${s.brightness===undefined?'unavailable':`${s.brightness} K (satellite brightness temperature, not a ground thermometer reading)`}.`;
   else if(/future|predict|next|24|48|7.day|when.*fire|happen next/.test(q)) answer=`${prediction}\n\nAGNITE cannot determine an exact future fire time from this evidence. Risk estimate / simulation — not a confirmed future fire prediction.`;
@@ -39,7 +39,9 @@ export function localAnswer(question: string, data: Intelligence): string {
   return `${header}\n\n${answer}\n\n${data.limitations}`;
 }
 
-export async function askAgnite(question: string, context: Intelligence, conversation:ConversationTurn[]=[], fetchImpl: typeof fetch = fetch) {
+export async function askAgnite(question: string, context: Intelligence, conversationOrFetch:ConversationTurn[]|typeof fetch=[], fetchImplArg: typeof fetch = fetch) {
+  const conversation=typeof conversationOrFetch==='function'?[]:conversationOrFetch;
+  const fetchImpl=typeof conversationOrFetch==='function'?conversationOrFetch:fetchImplArg;
   const fallback=(reason:string)=>({answer:localAnswer(question,context),mode:'local' as const,reason});
   try {
     const safeConversation=conversation.slice(-8).map(item=>({role:item.role,content:item.content.slice(0,1200)}));
