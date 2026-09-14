@@ -1,0 +1,23 @@
+{
+  "trained": false,
+  "name": "AGNITE NASA FIRMS Thermal Recurrence Model",
+  "version": "0.0.0",
+  "task": "Predict another FIRMS thermal detection in the same spatial cell within 24h, 48h, or 7d; not a confirmed-fire forecast.",
+  "trainingSource": "No real historical training artifact has been generated yet.",
+  "featureNames": [],
+  "scaler": {
+    "mean": [],
+    "scale": []
+  },
+  "models": {},
+  "validation": {
+    "method": "not trained",
+    "trainCount": 0,
+    "validationCount": 0,
+    "targetPrecision": 0.99
+  },
+  "limitations": [
+    "Run scripts/train-firms-recurrence-model.py on historical NASA FIRMS CSV exports to create a validated artifact.",
+    "Until then, AGNITE uses the transparent heuristic future-risk simulation."
+  ]
+}
