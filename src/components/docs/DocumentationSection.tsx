@@ -16,47 +16,42 @@ export const docId = (s: string) =>
 const sources = [
   [
     "NASA FIRMS / VIIRS / MODIS",
-    "Connected feed pathway",
-    "Public near-real-time downloads through the existing server. NASA DATA appears only after successful retrieval.",
+    "Connected",
+    "Public near-real-time downloads power the live map. A separate offline training script can ingest historical FIRMS CSV exports for recurrence-model development.",
   ],
   [
-    "OpenStreetMap",
-    "Map tiles",
-    "Map tiles plus a 5 km Overpass lookup for industrial and geographic features. Centre-point distances do not establish site containment.",
+    "OpenStreetMap / Overpass",
+    "Connected",
+    "Map tiles plus a 5 km lookup for industrial and geographic features. AGNITE can suggest land cover and nearest industrial distance, but mapped centre distances do not prove site containment or operating status.",
   ],
   [
     "Historical records",
-    "Loaded / local",
-    "Earlier loaded detections and saved browser reports within 5 km. No complete historical archive connected.",
-  ],
-  [
-    "Land cover / industrial context",
-    "User supplied",
-    "Nearby mapped facilities are loaded automatically for review. Verified model inputs remain user supplied; demo context is simulated.",
+    "Training pathway ready",
+    "Loaded observations and saved reports provide local history. scripts/download-firms-history.py and scripts/train-firms-recurrence-model.py provide the reproducible path for a larger historical NASA FIRMS model artifact.",
   ],
   [
     "Weather / wind",
-    "User supplied / pending",
-    "Manual wind input supported. No automatic weather forecast integration.",
+    "Manual / pending automation",
+    "Wind can be supplied as analysis context. No automatic weather forecast is treated as verified evidence yet.",
   ],
 ];
 const details: Record<string, string> = {
   Overview:
-    "AGNITE combines satellite thermal detections, loaded history and explainable experimental analysis. A detection is not a confirmed fire.",
+    "AGNITE combines satellite thermal detections, mapped context, historical behaviour, explainable classification, future thermal-recurrence/risk windows and a grounded assistant. A satellite hotspot is evidence, not a confirmed incident or cause.",
   "AI / ML Pipeline":
-    "Validate coordinates and acquisition times → group nearby passes → derive FRP, baseline and persistence features → synthetic-trained classifier with insufficient-evidence abstention → heuristic risk windows. No field-validated accuracy claim.",
+    "Classification: validate observations → build spatial/thermal/temporal features → multinomial classifier → conservative abstention on ambiguous cases. The bundled synthetic experiment reaches about 99% precision only on the selected high-confidence synthetic subset, not 99% real-world accuracy. Future modelling: historical NASA FIRMS CSV → temporal feature engineering → chronological holdout → 24h/48h/7d thermal-recurrence logistic models → precision-targeted decision thresholds. A real-data artifact is activated only after training and validation.",
   "AGNITE AI":
-    "Grounded local mode answers from selected evidence. An optional server-configured external provider receives selected context when you ask a question. Response badges identify the answering mode.",
+    "AGNITE AI is grounded in the selected hotspot, history, classification, risk windows, mapped context and missing evidence. An optional server-configured OpenAI-compatible provider enables conversational answers; the local evidence-grounded fallback remains available when the provider is unconfigured or unavailable.",
   "Risk Methodology":
-    "Risk is a 0–100 heuristic index, not event probability. FRP, baseline deviation, recurrence, trend and supplied context contribute points. Future windows assume trend continuation from acquisition; missing evidence lowers confidence.",
+    "Until a trained historical recurrence artifact exists, AGNITE displays a transparent 0–100 heuristic simulation based on FRP, baseline deviation, recurrence, trend, classification and supplied context. After real-data training, the same 24h/48h/7d view switches to a historical thermal-recurrence model. A 99% precision target is reported only if achieved on chronological held-out data; it is never assumed in advance and is not the probability that a confirmed fire will occur.",
   Alerts:
-    "Optional browser location is requested only after a click. Saved-site monitoring checks loaded NASA observations. Server-configured email subscriptions require explicit consent and email confirmation, check fresh NASA detections every 10 minutes and support unsubscribe/deletion. Email thresholds use FRP and distance, not heuristic risk scores.",
+    "Location access is optional and requested only after user action. In-app monitoring compares nearby loaded thermal detections, can generate an alert image, and supports saved sites. Server email subscriptions require explicit consent/confirmation and provider configuration; they are decision-support alerts, not emergency dispatch.",
   "APIs / Integrations":
-    "GET /api/firms retrieves NASA data. POST /api/agnite/ask supports a configured AI provider with local fallback. CSV import and JSON/CSV export work locally. GET /api/site-context loads OSM evidence; /api/alerts/* handles email consent and delivery; POST /api/contact sends team enquiries when configured. Provider keys belong on the server.",
+    "GET /api/firms retrieves NASA thermal observations. GET /api/site-context loads mapped OpenStreetMap evidence. POST /api/agnite/ask supports AGNITE AI with local fallback. /api/alerts/* handles confirmed alert subscriptions and POST /api/contact handles enquiries when configured. Provider secrets stay server-side.",
   "Agents / Services":
-    "Current services: feed retrieval/cache, observation validation, local classification and assistant request handling. An optional email worker handles confirmed subscriptions while the server runs. No autonomous emergency response is connected.",
+    "Services include NASA feed retrieval/cache, validation, mapped-context lookup, local classification, historical intelligence, future-risk/recurrence inference, AGNITE AI request handling, report/export tools and an optional confirmed-email worker. No autonomous emergency response is connected.",
   "Upcoming Features":
-    "Pending: historical archive ingestion, verified land-cover and industrial datasets, weather forecasts, field validation and calibrated prediction models.",
+    "Highest-value next validation work: train the recurrence artifact on multi-year FIRMS history, test later unseen time periods and geographically held-out regions, add verified industrial/land-cover sources, weather forecasts, field incident labels and calibration/drift monitoring.",
 };
 export function ArchitectureFlow() {
   return (
@@ -64,12 +59,12 @@ export function ArchitectureFlow() {
       {[
         "User",
         "Interactive India Map",
-        "NASA FIRMS / Other Data",
+        "NASA FIRMS + Mapped Context",
         "Hotspot Processing",
         "Historical Intelligence",
-        "Classification",
-        "Risk Engine",
-        "Future Risk",
+        "Classification + Abstention",
+        "Risk / Recurrence Engine",
+        "24h / 48h / 7d",
         "AGNITE AI",
         "Alerts / Reports / Safety Guidance",
       ].map((s, i) => (
@@ -88,8 +83,8 @@ export default function DocumentationSection() {
       <span className="eyebrow">DOCUMENTATION</span>
       <h2>Every signal has a source.</h2>
       <p>
-        Source → processing → intelligence → output. Inspect what is connected
-        and what remains experimental.
+        Source → processing → intelligence → output. Inspect what is connected,
+        what is validated and what is still experimental.
       </p>
       {documentationLinks.map((title) => (
         <Reveal key={title}>
@@ -109,8 +104,9 @@ export default function DocumentationSection() {
               <>
                 <ArchitectureFlow />
                 <p>
-                  Conceptual system flow. Alerts include local monitoring and
-                  confirmed email subscriptions when configured; future risk is an unvalidated estimate.
+                  The live application uses NASA FIRMS and mapped context. A
+                  trained recurrence artifact can replace the heuristic future
+                  window fallback after real historical validation.
                 </p>
               </>
             ) : (
