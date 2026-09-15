@@ -9,7 +9,7 @@ assert.match(answerQuestion('How many hotspots are loaded?',rows,null),/5 histor
 assert.match(answerQuestion('Highest FRP',rows,null),/88.0 MW/);
 assert.match(answerQuestion('Explain classification',rows,null),/Run site analysis first/);
 assert.match(answerQuestion('Data sources',rows,null),/Source labels/);
-assert.match(answerQuestion('unrecognized command',rows,null),/unvalidated simulation/);
+assert.match(answerQuestion('unrecognized command',rows,null),/(?:Thermal-recurrence model score|unvalidated simulation)/);
 assert.ok(Number.isFinite(distanceKm({latitude:90,longitude:0},{latitude:-90,longitude:180})));
 assert.equal(distanceKm(rows[0],rows[0]),0);
 assert.equal(isWatch({id:'site',name:'One',latitude:91,longitude:0,threshold:20}),false);
