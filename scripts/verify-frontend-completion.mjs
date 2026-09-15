@@ -20,7 +20,7 @@ try {
   const summary=await render('components/intelligence/HotspotSummary.tsx',{data});
   assert.match(summary,/SIMULATED DATA/);
   assert.match(summary,/Detection confidence/);
-  assert.match(summary,/Unavailable/);
+  assert.match(summary,/Not reported by source/);
   for(const [source,label] of [['manual','MANUAL DATA'],['imported','IMPORTED DATA'],['firms','NASA DATA']]) {
     const input={...selected,source};
     assert.match(await render('components/intelligence/HotspotSummary.tsx',{data:buildIntelligence(input,[input],context,null)}),new RegExp(label));
@@ -38,5 +38,5 @@ try {
   const {documentationLinks,docId}=await load('components/docs/DocumentationSection.tsx');
   for(const label of documentationLinks) assert.ok(docs.includes(`id="${docId(label)}"`));
   assert.match(await render('components/awareness/AwarenessSection.tsx'),/NO LIVE NEWS FEED/);
-  console.log('PASS: component rendering, provenance labels, risk windows/meters, optional location, confirmed-email form, documentation anchors and educational labels.');
+  console.log('PASS: component rendering, provenance labels, explicit source-missing states, risk windows/meters, optional location, confirmed-email form, documentation anchors and educational labels.');
 } finally {await vite.close();}
