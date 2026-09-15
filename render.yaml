@@ -11,3 +11,15 @@ services:
         value: 22
       - key: HOST
         value: 0.0.0.0
+      # Secret: set this in Render. Never commit the real API key.
+      - key: AGNITE_LLM_API_KEY
+        sync: false
+      # OpenAI-compatible provider defaults. These can be overridden in Render.
+      - key: AGNITE_LLM_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AGNITE_LLM_MODEL
+        value: gpt-4.1-mini
+      - key: AGNITE_LLM_APP_NAME
+        value: AGNITE
+      - key: AGNITE_LLM_SITE_URL
+        value: https://agnite.onrender.com
