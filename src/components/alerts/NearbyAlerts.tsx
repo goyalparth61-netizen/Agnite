@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Observation } from "../../ai/thermalEngine";
 import { acquisitionStatus, nearbyCandidates } from "../../ai/decisionSupport";
 import { buildIntelligence, sourceLabel } from "../../ai/intelligence";
+import { LOCATION_SELECTION_EVENT, readSelectedLocation, rememberSelectedLocation, type SelectedLocation } from "../../ai/locationSelection";
 import EmailSubscription from "./EmailSubscription";
 import {alertImage} from '../../ai/alertImage';
 import {downloadText} from '../../ai/workspaceData';
@@ -15,12 +16,12 @@ export default function NearbyAlerts({
   stale?: boolean;
   onInspect?: (row: Observation) => void;
 }) {
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const storedLocation = readSelectedLocation();
+  const [location, setLocation] = useState<SelectedLocation | null>(() => storedLocation);
   const [status, setStatus] = useState(
-    "Location is optional and stays in this page session.",
+    storedLocation
+      ? "Using the location selected on the AGNITE map. Coordinates are synchronized across the workspace."
+      : "Location is optional and stays in this page session.",
   );
   const [pending, setPending] = useState(false);
   const [radius, setRadius] = useState(25);
@@ -34,6 +35,19 @@ export default function NearbyAlerts({
       clearInterval(timer);
       request.current++;
     };
+  }, []);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncFromMap = (event: Event) => {
+      const point = (event as CustomEvent<SelectedLocation>).detail;
+      if (!point || !Number.isFinite(point.latitude) || !Number.isFinite(point.longitude)) return;
+      request.current++;
+      setPending(false);
+      setLocation(point);
+      setStatus("Using the latest map-selected coordinates. Alert and email fields are synchronized automatically.");
+    };
+    window.addEventListener(LOCATION_SELECTION_EVENT, syncFromMap);
+    return () => window.removeEventListener(LOCATION_SELECTION_EVENT, syncFromMap);
   }, []);
   const candidates = useMemo(
     () =>
@@ -70,12 +84,11 @@ export default function NearbyAlerts({
     navigator.geolocation.getCurrentPosition(
       (p) => {
         if (version !== request.current) return;
-        setLocation({
-          latitude: p.coords.latitude,
-          longitude: p.coords.longitude,
-        });
+        const point={latitude:p.coords.latitude,longitude:p.coords.longitude};
+        setLocation(point);
+        rememberSelectedLocation(point);
         setStatus(
-          `Location enabled · accuracy approximately ${Math.round(p.coords.accuracy)} m`,
+          `Location enabled · accuracy approximately ${Math.round(p.coords.accuracy)} m · synchronized across AGNITE`,
         );
         setPending(false);
       },
@@ -104,7 +117,7 @@ export default function NearbyAlerts({
         >
           {pending ? "Locating…" : "Enable Nearby Alerts"}
         </button>
-        <form className="alert-form" onSubmit={e=>{e.preventDefault();const values=new FormData(e.currentTarget);request.current++;setPending(false);setLocation({latitude:Number(values.get('latitude')),longitude:Number(values.get('longitude'))});setStatus('Selected coordinates stay in this session unless you subscribe to email alerts.');}}><label>Choose latitude instead<input name="latitude" type="number" required min={6} max={38} step="any" placeholder="21.1466"/></label><label>Longitude<input name="longitude" type="number" required min={67} max={99} step="any" placeholder="79.0889"/></label><button className="button secondary">Use these coordinates</button></form>
+        <form className="alert-form" onSubmit={e=>{e.preventDefault();const values=new FormData(e.currentTarget);request.current++;setPending(false);const point={latitude:Number(values.get('latitude')),longitude:Number(values.get('longitude'))};setLocation(point);rememberSelectedLocation(point);setStatus('Selected coordinates are synchronized across the workspace and used for email alerts too.');}}><label>Latitude<input name="latitude" type="number" required min={6} max={38} step="any" placeholder="21.1466"/></label><label>Longitude<input name="longitude" type="number" required min={67} max={99} step="any" placeholder="79.0889"/></label><button className="button secondary">Use these coordinates</button></form>
         <label className="alert-age-filter">
           Acquisition window
           <select value={maxAge} onChange={(e) => setMaxAge(e.target.value)}>
@@ -122,7 +135,7 @@ export default function NearbyAlerts({
                 request.current++;
                 setPending(false);
                 setLocation(null);
-                setStatus("Location cleared from this session.");
+                setStatus("Alert location cleared for this view. Your last map selection remains available to other workspace forms.");
               }}
             >
               Clear location
