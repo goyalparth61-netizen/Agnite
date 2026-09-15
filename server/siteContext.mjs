@@ -1,4 +1,12 @@
 import { distanceKm } from './notifications.mjs';
+
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+];
+const MAX_CONTEXT_BYTES = 2_000_000;
+
 export function summarizeSiteContext(data, latitude, longitude) {
   if (!Array.isArray(data?.elements) || data.remark) throw Error('Incomplete map response');
   const features=data.elements.flatMap(item=>{
@@ -9,6 +17,26 @@ export function summarizeSiteContext(data, latitude, longitude) {
   }).sort((a,b)=>a.distanceKm-b.distanceKm);
   return {latitude,longitude,features:features.slice(0,30),source:'OpenStreetMap / Overpass',sourceUrl:'https://www.openstreetmap.org/copyright',radiusKm:5,fetchedAt:new Date().toISOString(),limitations:'Community map coverage may be incomplete. Distances use mapped points or feature centres, not facility boundaries. Nearby features do not establish containment, operational status or fire cause. No mapped industry does not mean no industry exists.'};
 }
+
+async function readBoundedJson(response) {
+  const declared=Number(response.headers.get('content-length'));
+  if(Number.isFinite(declared)&&declared>MAX_CONTEXT_BYTES){await response.body?.cancel();throw Error('Map response too large.');}
+  if(!response.body) throw Error('Map context provider returned no body.');
+  const reader=response.body.getReader();let bytes=0,text='';
+  try{
+    const decoder=new TextDecoder();
+    while(true){
+      const {done,value}=await reader.read();if(done)break;
+      bytes+=value.byteLength;if(bytes>MAX_CONTEXT_BYTES)throw Error('Map response too large.');
+      text+=decoder.decode(value,{stream:true});
+    }
+    text+=decoder.decode();
+  } finally {
+    await reader.cancel().catch(()=>{});reader.releaseLock();
+  }
+  return JSON.parse(text);
+}
+
 export function createSiteContext({fetchImpl=fetch,now=Date.now}={}) {
   const cache=new Map(), pending=new Map();
   return async function get(latitude,longitude) {
@@ -18,14 +46,20 @@ export function createSiteContext({fetchImpl=fetch,now=Date.now}={}) {
     if (pending.has(key)) return pending.get(key);
     if (pending.size>=3) throw Error('Map context is busy. Retry shortly.');
     const work=(async()=>{
-      const query=`[out:json][timeout:18];(nwr(around:5000,${key})[landuse~"^(industrial|forest|residential)$"];nwr(around:5000,${key})[industrial];nwr(around:5000,${key})[power~"^(plant|generator)$"];nwr(around:5000,${key})[man_made~"^(works|kiln|chimney)$"];nwr(around:5000,${key})[natural~"^(wood|water|scrub)$"];);out center tags 100;`;
-      const response=await fetchImpl('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(22000)});
-      if(!response.ok){await response.body?.cancel();throw Error('Map context provider unavailable.');}
-      let text='';const reader=response.body.getReader();let bytes=0;
-      try{const decoder=new TextDecoder();while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>2000000)throw Error('Map response too large.');text+=decoder.decode(value,{stream:true});}text+=decoder.decode();}finally{await reader.cancel();reader.releaseLock();}
-      const value=summarizeSiteContext(JSON.parse(text),latitude,longitude);
-      if(cache.size>=100)cache.delete(cache.keys().next().value);
-      cache.set(key,{time:now(),value});return value;
+      const query=`[out:json][timeout:8];(nwr(around:5000,${key})[landuse~"^(industrial|forest|residential)$"];nwr(around:5000,${key})[industrial];nwr(around:5000,${key})[power~"^(plant|generator)$"];nwr(around:5000,${key})[man_made~"^(works|kiln|chimney)$"];nwr(around:5000,${key})[natural~"^(wood|water|scrub)$"];);out center tags 100;`;
+      for(const endpoint of OVERPASS_ENDPOINTS){
+        try{
+          const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',headers:{'Content-Type':'application/x-www-form-urlencoded','User-Agent':'AGNITE/0.1 (+https://agnite.onrender.com)'},body:new URLSearchParams({data:query}),signal:AbortSignal.timeout(10000)});
+          if(!response.ok){await response.body?.cancel();continue;}
+          const value=summarizeSiteContext(await readBoundedJson(response),latitude,longitude);
+          if(cache.size>=100)cache.delete(cache.keys().next().value);
+          cache.set(key,{time:now(),value});return value;
+        } catch {
+          // Public Overpass instances can be busy. Try the next community endpoint.
+        }
+      }
+      if(previous) return {...previous.value,stale:true,warning:'Live mapped context could not refresh; showing cached mapped context.'};
+      throw Error('Map context provider unavailable.');
     })();
     pending.set(key,work);try{return await work;}finally{pending.delete(key);}
   };
