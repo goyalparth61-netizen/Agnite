@@ -317,7 +317,6 @@ Raw historical downloads are intentionally ignored by Git. Only reviewed model a
 
 **Quantum University · Smart India Hackathon 2026 · SIH26162**
 
----
 
 ## Responsible-use statement
 
