@@ -42,8 +42,8 @@ try {
  const context=summarizeSiteContext({elements:[{type:'way',id:1,center:{lat:21,lon:79},tags:{name:'Test steel works',landuse:'industrial'}},{type:'node',id:2,lat:21.001,lon:79,tags:{natural:'wood'}}]},21,79);
  assert.equal(context.features.length,2);assert.equal(context.features[0].industrial,true);assert.equal(context.features[0].distanceKm,0);
  assert.throws(()=>summarizeSiteContext({elements:[],remark:'timeout'},21,79));
- let requests=0;const lookup=createSiteContext({fetchImpl:async()=>{requests++;return new Response(JSON.stringify({elements:[]}));}});
- await Promise.all([lookup(21,79),lookup(21,79)]);await lookup(21,79);assert.equal(requests,1,'Concurrent and repeated lookups share cache');
+ let requests=0;const lookup=createSiteContext({fetchImpl:async(url)=>{requests++;return new Response(JSON.stringify(String(url).includes('open-meteo')?{current:{time:'2026-09-14T12:00',wind_speed_10m:12,wind_direction_10m:90,wind_gusts_10m:18,temperature_2m:30}}:{elements:[]}));}});
+ await Promise.all([lookup(21,79),lookup(21,79)]);await lookup(21,79);assert.equal(requests,2,'One mapped-context request and one weather request are shared by concurrent and repeated lookups');
  await assert.rejects(()=>lookup(NaN,79));
- console.log('PASS: email consent, confirmation, origin validation, stale-feed suppression, retry, persisted dedupe, unsubscribe deletion, source filtering and mapped context cache. No real emails sent.');
+ console.log('PASS: email consent, confirmation, origin validation, stale-feed suppression, retry, persisted dedupe, unsubscribe deletion, source filtering, mapped context/weather cache. No real emails sent.');
 } finally {await rm(directory,{recursive:true,force:true});}
