@@ -4,7 +4,7 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const children=[];
 let stopping=false;
 function stop(code=0){if(stopping)return;stopping=true;for(const child of children)child.kill();process.exitCode=code;}
-for(const [script,args] of [['server/index.mjs',[]],['node_modules/vite/bin/vite.js',process.argv.slice(2)]]){
+for(const [script,args] of [['server/start.mjs',[]],['node_modules/vite/bin/vite.js',process.argv.slice(2)]]){
  const child=spawn(process.execPath,[script,...args],{cwd:root,stdio:'inherit',windowsHide:true});
  children.push(child);
  child.on('error',error=>{console.error(error.message);stop(1);});
