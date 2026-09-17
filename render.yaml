@@ -11,7 +11,9 @@ services:
         value: 22
       - key: HOST
         value: 0.0.0.0
-      # Secret: set this in Render. Never commit the real API key.
+      # Secrets: set these in Render. Never commit the real keys.
+      - key: NASA_FIRMS_MAP_KEY
+        sync: false
       - key: AGNITE_LLM_API_KEY
         sync: false
       # OpenAI-compatible provider defaults. These can be overridden in Render.
