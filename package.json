@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:ui": "vite",
-    "api": "node server/start.mjs",
+    "api": "node --env-file-if-exists=.env server/start.mjs",
     "start": "node server/start.mjs",
     "test": "node scripts/verify-firms-server.mjs && node scripts/verify-thermal-engine.mjs && node scripts/verify-observation-import.mjs && node scripts/verify-workspace-data.mjs && node scripts/verify-intelligence.mjs && node scripts/verify-frontend-completion.mjs && node scripts/verify-notifications.mjs",
     "build": "tsc -b && vite build",
