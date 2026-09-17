@@ -7,11 +7,12 @@ import {downloadText} from '../../ai/workspaceData';
 interface Props { selected:Observation|null; observations:Observation[]; context:AnalysisContext; setContext:(context:AnalysisContext)=>void; report:AnalysisResult|null; run:()=>void; save:()=>void; demo:()=>void; }
 
 type MappedFeature={industrial:boolean;distanceKm:number;kind:string};
-function inferMappedContext(features:MappedFeature[]) {
+type SiteContextResponse={features?:MappedFeature[];weather?:{windKph?:number|null}|null};
+function inferMappedContext(features:MappedFeature[],weather:SiteContextResponse['weather']) {
  const nearestIndustrial=features.filter(feature=>feature.industrial).sort((a,b)=>a.distanceKm-b.distanceKm)[0];
  const nearbyKinds=features.filter(feature=>feature.distanceKm<=2).map(feature=>feature.kind.toLowerCase());
  const landCover:AnalysisContext['landCover']=nearestIndustrial&&nearestIndustrial.distanceKm<=2?'industrial':nearbyKinds.some(kind=>kind.includes('forest')||kind.includes('wood'))?'forest':nearbyKinds.some(kind=>kind.includes('residential'))?'urban':'unknown';
- return {landCover,industrialDistanceKm:nearestIndustrial?.distanceKm??null};
+ return {landCover,industrialDistanceKm:nearestIndustrial?.distanceKm??null,windKph:Number.isFinite(weather?.windKph)?Number(weather?.windKph):null};
 }
 
 export default function AnalysisPanel({selected,observations,context,setContext,report,run,save,demo}:Props){
@@ -21,16 +22,18 @@ export default function AnalysisPanel({selected,observations,context,setContext,
   const controller=new AbortController();
   fetch(`/api/site-context?latitude=${selected.latitude}&longitude=${selected.longitude}`,{signal:controller.signal})
    .then(async response=>{if(!response.ok)throw Error('context unavailable');return response.json();})
-   .then(result=>{
-    if(controller.signal.aborted||!Array.isArray(result.features))return;
-    const suggestion=inferMappedContext(result.features);
+   .then((result:SiteContextResponse)=>{
+    if(controller.signal.aborted)return;
+    const features=Array.isArray(result.features)?result.features:[];
+    const suggestion=inferMappedContext(features,result.weather);
     const latest=contextRef.current;
     const next:AnalysisContext={
       ...latest,
       landCover:latest.landCover==='unknown'?suggestion.landCover:latest.landCover,
       industrialDistanceKm:latest.industrialDistanceKm===null?suggestion.industrialDistanceKm:latest.industrialDistanceKm,
+      windKph:latest.windKph===null?suggestion.windKph:latest.windKph,
     };
-    if(next.landCover!==latest.landCover||next.industrialDistanceKm!==latest.industrialDistanceKm)setContext(next);
+    if(next.landCover!==latest.landCover||next.industrialDistanceKm!==latest.industrialDistanceKm||next.windKph!==latest.windKph)setContext(next);
    }).catch(()=>{});
   return()=>controller.abort();
  },[selected?.id,selected?.latitude,selected?.longitude,selected?.source,setContext]);
@@ -41,8 +44,8 @@ export default function AnalysisPanel({selected,observations,context,setContext,
    <div className="ws-form">
     <label>Land cover<select value={context.landCover} onChange={e=>setContext({...context,landCover:e.target.value as AnalysisContext['landCover']})}><option value="unknown">Unknown</option><option value="forest">Forest</option><option value="industrial">Industrial</option><option value="urban">Urban</option><option value="other">Other</option></select></label>
     <label>Industrial distance (km)<input type="number" min="0" max="20000" step="any" placeholder="Unknown" value={context.industrialDistanceKm??''} onChange={e=>setContext({...context,industrialDistanceKm:e.target.value===''?null:Number(e.target.value)})}/></label>
-    <label>Wind speed (km/h)<input type="number" min="0" max="500" step="any" placeholder="Unknown" value={context.windKph??''} onChange={e=>setContext({...context,windKph:e.target.value===''?null:Number(e.target.value)})}/></label>
-   </div><p className="ws-source">AGNITE automatically suggests land cover / nearest industrial distance from mapped OpenStreetMap context when available. Treat it as evidence, not verified facility containment; you can override it. Wind remains user supplied. For demo coordinates, mapped context may be live even though the thermal observations remain simulated.</p>
+    <label>Wind speed (km/h)<input type="number" min="0" max="500" step="any" placeholder="Auto from Open-Meteo when available" value={context.windKph??''} onChange={e=>setContext({...context,windKph:e.target.value===''?null:Number(e.target.value)})}/></label>
+   </div><p className="ws-source">AGNITE automatically suggests land cover / nearest industrial distance from OpenStreetMap and current wind speed from Open-Meteo when those providers respond. Treat mapped context as evidence, not verified facility containment; all fields remain manually overridable. For demo coordinates, live context may be used even though the thermal observations remain simulated.</p>
    <div className="ws-actions"><button className="ws-button primary" disabled={!selected} onClick={run}><Play size={15}/> Run analysis</button><button className="ws-button" onClick={demo}>Load demo scenario</button></div>
   </section><section className="ws-panel"><div className="ws-panel-head"><h2>Analysis result</h2>{report&&<span className="ws-status">{report.status}</span>}</div>
    {report?<><span className="ws-kicker">{report.model.name} / V{report.model.version}</span><h2>{report.classification}</h2><p>{report.summary}</p><div className="ws-metrics"><div className="ws-metric"><span>Current screening index</span><strong>{report.risk.index}<small>/100</small></strong><small>{report.risk.level} · heuristic, not fire probability</small></div><div className="ws-metric"><span>Relative classifier score</span><strong>{report.modelScore===null?'WITHHELD':report.modelScore.toFixed(2)}</strong><small>{report.modelScore===null?'Classifier abstained because evidence / decision-gate requirements were not satisfied':'Relative synthetic-model pattern score; not calibrated confidence'}</small></div></div>{report.modelScore===null&&<div className="ws-notice">The blank score was intentional model abstention, not a calculation failure. Check the warnings below for the exact missing-history, context, supported-range, or decision-threshold reason. The separate 24h / 48h / 7d thermal-recurrence pipeline can still produce its own scores when its trained artifact is available.</div>}<div className="ws-actions"><button className="ws-button" onClick={save}><Save size={15}/> Save report</button><button className="ws-button" onClick={()=>downloadText('agnite-analysis.json',JSON.stringify({exportedAt:new Date().toISOString(),context,observations,report},null,2))}><Download size={15}/> Export JSON</button></div></>:<div className="ws-empty">Your result, supporting evidence and model contributions will appear here after analysis.</div>}
