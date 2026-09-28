@@ -12,10 +12,33 @@ export interface Observation {
 
 export type ObservationCoordinates = Pick<Observation, "latitude" | "longitude">;
 
+export interface WeatherContext {
+  source?: string;
+  observedAt?: string | null;
+  temperatureC: number | null;
+  humidityPercent: number | null;
+  precipitationMm: number | null;
+  rainMm: number | null;
+  windKph: number | null;
+  windDirectionDeg: number | null;
+  windDirectionLabel: string | null;
+  windGustKph: number | null;
+  forecast24h?: {
+    minTemperatureC: number | null;
+    maxTemperatureC: number | null;
+    minHumidityPercent: number | null;
+    maxWindKph: number | null;
+    maxWindGustKph: number | null;
+    precipitationTotalMm: number | null;
+    rainTotalMm: number | null;
+  } | null;
+}
+
 export interface AnalysisContext {
   industrialDistanceKm: number | null;
   landCover: "forest" | "urban" | "industrial" | "other" | "unknown";
   windKph: number | null;
+  weather?: WeatherContext | null;
 }
 
 export type ThermalClass = "Industrial Fire" | "Persistent Industrial Heat" | "Forest / Natural Fire" | "Other Thermal Anomaly";
@@ -97,6 +120,18 @@ function validateContext(context: AnalysisContext) {
   if (!context || !["forest", "urban", "industrial", "other", "unknown"].includes(context.landCover)) throw new Error("Choose a valid land-cover context.");
   if (context.industrialDistanceKm !== null && (!Number.isFinite(context.industrialDistanceKm) || context.industrialDistanceKm < 0)) throw new Error("Industrial distance must be a non-negative number, or unknown.");
   if (context.windKph !== null && (!Number.isFinite(context.windKph) || context.windKph < 0 || context.windKph > 500)) throw new Error("Wind must be between 0 and 500 km/h, or unknown.");
+  if (context.weather) {
+    const checks: [number | null | undefined, number, number, string][] = [
+      [context.weather.temperatureC,-100,70,'Temperature'],
+      [context.weather.humidityPercent,0,100,'Humidity'],
+      [context.weather.precipitationMm,0,1000,'Precipitation'],
+      [context.weather.rainMm,0,1000,'Rain'],
+      [context.weather.windKph,0,500,'Weather wind'],
+      [context.weather.windDirectionDeg,0,360,'Wind direction'],
+      [context.weather.windGustKph,0,500,'Wind gust'],
+    ];
+    for (const [value,min,max,label] of checks) if (value !== null && value !== undefined && (!Number.isFinite(value) || value < min || value > max)) throw new Error(`${label} is outside the supported range.`);
+  }
 }
 
 const featureLabels = ["Current FRP (log)", "Current / baseline change (log)", "Observed day coverage", "Industrial proximity", "Forest cover", "Industrial cover", "Urban cover", "User-supplied wind"];

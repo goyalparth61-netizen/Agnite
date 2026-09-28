@@ -7,12 +7,12 @@ import {downloadText} from '../../ai/workspaceData';
 interface Props { selected:Observation|null; observations:Observation[]; context:AnalysisContext; setContext:(context:AnalysisContext)=>void; report:AnalysisResult|null; run:()=>void; save:()=>void; demo:()=>void; }
 
 type MappedFeature={industrial:boolean;distanceKm:number;kind:string};
-type SiteContextResponse={features?:MappedFeature[];weather?:{windKph?:number|null}|null};
+type SiteContextResponse={features?:MappedFeature[];weather?:AnalysisContext['weather']|null};
 function inferMappedContext(features:MappedFeature[],weather:SiteContextResponse['weather']) {
  const nearestIndustrial=features.filter(feature=>feature.industrial).sort((a,b)=>a.distanceKm-b.distanceKm)[0];
  const nearbyKinds=features.filter(feature=>feature.distanceKm<=2).map(feature=>feature.kind.toLowerCase());
  const landCover:AnalysisContext['landCover']=nearestIndustrial&&nearestIndustrial.distanceKm<=2?'industrial':nearbyKinds.some(kind=>kind.includes('forest')||kind.includes('wood'))?'forest':nearbyKinds.some(kind=>kind.includes('residential'))?'urban':'unknown';
- return {landCover,industrialDistanceKm:nearestIndustrial?.distanceKm??null,windKph:Number.isFinite(weather?.windKph)?Number(weather?.windKph):null};
+ return {landCover,industrialDistanceKm:nearestIndustrial?.distanceKm??null,windKph:Number.isFinite(weather?.windKph)?Number(weather?.windKph):null,weather:weather??null};
 }
 
 export default function AnalysisPanel({selected,observations,context,setContext,report,run,save,demo}:Props){
@@ -32,8 +32,9 @@ export default function AnalysisPanel({selected,observations,context,setContext,
       landCover:latest.landCover==='unknown'?suggestion.landCover:latest.landCover,
       industrialDistanceKm:latest.industrialDistanceKm===null?suggestion.industrialDistanceKm:latest.industrialDistanceKm,
       windKph:latest.windKph===null?suggestion.windKph:latest.windKph,
+      weather:suggestion.weather??latest.weather??null,
     };
-    if(next.landCover!==latest.landCover||next.industrialDistanceKm!==latest.industrialDistanceKm||next.windKph!==latest.windKph)setContext(next);
+    if(next.landCover!==latest.landCover||next.industrialDistanceKm!==latest.industrialDistanceKm||next.windKph!==latest.windKph||next.weather!==latest.weather)setContext(next);
    }).catch(()=>{});
   return()=>controller.abort();
  },[selected?.id,selected?.latitude,selected?.longitude,selected?.source,setContext]);

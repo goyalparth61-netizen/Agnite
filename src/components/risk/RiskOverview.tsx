@@ -88,6 +88,20 @@ export default function RiskOverview({ data }: { data?: Intelligence }) {
                 : "Prediction model: transparent heuristic fallback"}
             </span>
           </div>
+          <section className="intel-card">
+            <span className="eyebrow">WEATHER CONTEXT</span>
+            <h3>{data.weatherAssessment.points >= 6 ? "Weather may increase spread concern" : data.weatherAssessment.points < 0 ? "Rain may reduce immediate spread concern" : "Weather adds supporting context"}</h3>
+            <p>{data.weatherAssessment.summary}</p>
+            <div className="actions">
+              {data.weatherAssessment.factors.map((factor) => (
+                <span className="evidence-chip" key={factor.label}>
+                  {factor.points >= 0 ? "+" : ""}{factor.points} · {factor.label}
+                </span>
+              ))}
+              {!data.weatherAssessment.factors.length && <span className="evidence-chip">Weather data unavailable</span>}
+            </div>
+            <small>Weather is supporting context only. It does not confirm a fire or its cause.</small>
+          </section>
           <div className="intel-grid">
             {data.predictions.map((p) => (
               <Reveal key={p.window}>

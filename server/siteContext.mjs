@@ -11,7 +11,49 @@ const MAX_CONTEXT_BYTES = 2_000_000;
 const MAX_WEATHER_BYTES = 256_000;
 const CACHE_TTL_MS = 15 * 60 * 1000;
 
-const LIMITATIONS = 'Community map coverage may be incomplete. Distances use mapped points or feature centres, not facility boundaries. Nearby features do not establish containment, operational status or fire cause. No mapped industry does not mean no industry exists.';
+const LIMITATIONS = 'Community map coverage may be incomplete. Distances use mapped points or feature centres, not facility boundaries. Nearby features do not establish containment, operational status or fire cause. No mapped industry does not mean no industry exists. Weather is contextual evidence only and does not confirm a fire.';
+
+const finiteOrNull = value => Number.isFinite(value) ? Number(value) : null;
+const finiteValues = value => Array.isArray(value) ? value.filter(Number.isFinite).map(Number) : [];
+const sum = values => values.length ? values.reduce((total, value) => total + value, 0) : null;
+const min = values => values.length ? Math.min(...values) : null;
+const max = values => values.length ? Math.max(...values) : null;
+
+export function windDirectionLabel(degrees) {
+  if (!Number.isFinite(degrees)) return null;
+  const normalized = ((Number(degrees) % 360) + 360) % 360;
+  return ['N','NE','E','SE','S','SW','W','NW'][Math.round(normalized / 45) % 8];
+}
+
+export function weatherSummaryFromOpenMeteo(data) {
+  const current=data?.current;
+  if(!current||typeof current!=='object') return null;
+  const hourly=data?.hourly&&typeof data.hourly==='object'?data.hourly:{};
+  const temperatures=finiteValues(hourly.temperature_2m);
+  const humidities=finiteValues(hourly.relative_humidity_2m);
+  const winds=finiteValues(hourly.wind_speed_10m);
+  const gusts=finiteValues(hourly.wind_gusts_10m);
+  const precipitation=finiteValues(hourly.precipitation);
+  const rain=finiteValues(hourly.rain);
+  const weather={
+    source:'Open-Meteo',sourceUrl:'https://open-meteo.com/',observedAt:typeof current.time==='string'?current.time:null,
+    temperatureC:finiteOrNull(current.temperature_2m),
+    humidityPercent:finiteOrNull(current.relative_humidity_2m),
+    precipitationMm:finiteOrNull(current.precipitation),
+    rainMm:finiteOrNull(current.rain),
+    windKph:finiteOrNull(current.wind_speed_10m),
+    windDirectionDeg:finiteOrNull(current.wind_direction_10m),
+    windDirectionLabel:windDirectionLabel(current.wind_direction_10m),
+    windGustKph:finiteOrNull(current.wind_gusts_10m),
+    forecast24h:{
+      minTemperatureC:min(temperatures),maxTemperatureC:max(temperatures),minHumidityPercent:min(humidities),
+      maxWindKph:max(winds),maxWindGustKph:max(gusts),precipitationTotalMm:sum(precipitation),rainTotalMm:sum(rain),
+    },
+  };
+  const currentValues=[weather.temperatureC,weather.humidityPercent,weather.precipitationMm,weather.rainMm,weather.windKph,weather.windDirectionDeg,weather.windGustKph];
+  const forecastValues=Object.values(weather.forecast24h);
+  return currentValues.some(Number.isFinite)||forecastValues.some(Number.isFinite)?weather:null;
+}
 
 export function summarizeSiteContext(data, latitude, longitude) {
   if (!Array.isArray(data?.elements) || data.remark) throw Error('Incomplete map response');
@@ -47,23 +89,15 @@ async function loadWeather(fetchImpl, latitude, longitude) {
   try {
     const params=new URLSearchParams({
       latitude:String(latitude),longitude:String(longitude),
-      current:'temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
-      wind_speed_unit:'kmh',timezone:'auto',forecast_days:'1',
+      current:'temperature_2m,relative_humidity_2m,precipitation,rain,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+      hourly:'temperature_2m,relative_humidity_2m,precipitation,rain,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+      wind_speed_unit:'kmh',timezone:'auto',forecast_hours:'24',
     });
     const response=await fetchImpl(`${OPEN_METEO_URL}?${params}`,{
-      method:'GET',redirect:'error',headers:{Accept:'application/json','User-Agent':'AGNITE/0.2 (+https://agnite.onrender.com)'},signal:AbortSignal.timeout(9000),
+      method:'GET',redirect:'error',headers:{Accept:'application/json','User-Agent':'AGNITE/0.3 (+https://agnite.onrender.com)'},signal:AbortSignal.timeout(9000),
     });
     if(!response.ok){await response.body?.cancel();return null;}
-    const data=await readBoundedJson(response,MAX_WEATHER_BYTES);
-    const current=data?.current;
-    if(!current||!Number.isFinite(current.wind_speed_10m))return null;
-    return {
-      source:'Open-Meteo',sourceUrl:'https://open-meteo.com/',observedAt:typeof current.time==='string'?current.time:null,
-      windKph:current.wind_speed_10m,
-      windDirectionDeg:Number.isFinite(current.wind_direction_10m)?current.wind_direction_10m:null,
-      windGustKph:Number.isFinite(current.wind_gusts_10m)?current.wind_gusts_10m:null,
-      temperatureC:Number.isFinite(current.temperature_2m)?current.temperature_2m:null,
-    };
+    return weatherSummaryFromOpenMeteo(await readBoundedJson(response,MAX_WEATHER_BYTES));
   } catch {return null;}
 }
 
