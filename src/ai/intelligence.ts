@@ -40,10 +40,33 @@ export function summarizeLocation(selected: Observation | null, observations: Ob
     anomalyPercent:baseline!==null&&baseline>0&&selected?100*(selected.frp-baseline)/baseline:null, trend};
 }
 export type LocationHistory = ReturnType<typeof summarizeLocation>;
+export type WeatherAssessment = {points:number;factors:{label:string;points:number}[];summary:string;missing:string[]};
+export function assessWeather(context: AnalysisContext):WeatherAssessment {
+  const w=context.weather;
+  if(!w) return {points:0,factors:[],summary:'Weather data unavailable; no weather adjustment applied.',missing:['Weather unavailable']};
+  const factors:{label:string;points:number}[]=[];
+  const wind=w.windKph??context.windKph;
+  if(wind!==null) factors.push({label:`Wind ${wind.toFixed(1)} km/h`,points:Math.min(6,wind/8)});
+  if(w.windGustKph!==null) factors.push({label:`Wind gusts ${w.windGustKph.toFixed(1)} km/h`,points:Math.min(3,w.windGustKph/20)});
+  if(w.humidityPercent!==null) factors.push({label:`Humidity ${w.humidityPercent.toFixed(0)}%`,points:w.humidityPercent<20?5:w.humidityPercent<35?3:w.humidityPercent>75?-2:0});
+  if(w.temperatureC!==null&&w.humidityPercent!==null) factors.push({label:`Temperature ${w.temperatureC.toFixed(1)} °C`,points:w.temperatureC>=38&&w.humidityPercent<35?2:w.temperatureC>=32&&w.humidityPercent<35?1:0});
+  const rain=w.rainMm??w.precipitationMm;
+  if(rain!==null) factors.push({label:`Current rain ${rain.toFixed(1)} mm`,points:rain>=7.5?-5:rain>=2.5?-3:rain>0?-1:0});
+  const raw=factors.reduce((sum,factor)=>sum+factor.points,0);
+  const points=Math.max(-6,Math.min(15,raw));
+  const dry=w.humidityPercent!==null&&w.humidityPercent<35;
+  const windy=wind!==null&&wind>=25;
+  const wet=rain!==null&&rain>=2.5;
+  const summary=wet?'Rainfall may reduce immediate vegetation fire-spread concern, but it does not identify the thermal source.':dry&&windy?'Dry air and stronger winds may increase spread concern if the thermal event is an active fire.':dry?'Low humidity adds dry-condition context to this thermal signal.':windy?'Stronger winds may increase spread concern if an active fire is present.':'Weather currently adds limited spread-risk context.';
+  const missing=[w.humidityPercent===null?'Humidity unavailable':null,wind===null?'Wind unavailable':null,rain===null?'Rainfall unavailable':null,w.temperatureC===null?'Temperature unavailable':null].filter((value):value is string=>Boolean(value));
+  return {points:Math.round(points*10)/10,factors:factors.map(f=>({...f,points:Math.round(f.points*10)/10})),summary,missing};
+}
+
 
 /** Transparent fallback used until a real historical recurrence artifact is trained. */
 export function estimateRisk(history: LocationHistory, context: AnalysisContext, report: AnalysisResult | null) {
   if(history.currentFrp===null) return [];
+  const weather=assessWeather(context);
   const factors = [
     {label:'Current FRP (log-scaled)',points:Math.min(30,Math.log1p(history.currentFrp)*6)},
     {label:'Deviation from historical baseline',points:history.anomalyPercent===null?0:Math.max(-15,Math.min(20,history.anomalyPercent/10))},
@@ -53,9 +76,9 @@ export function estimateRisk(history: LocationHistory, context: AnalysisContext,
     {label:'Current classification risk index',points:(report?.risk.index??0)*.15},
     {label:'Supplied industrial proximity (< 2 km)',points:context.industrialDistanceKm!==null&&context.industrialDistanceKm<2?5:0},
     {label:`Supplied land cover: ${context.landCover}`,points:context.landCover==='forest'?5:context.landCover==='industrial'?3:0},
-    {label:'Supplied wind',points:context.windKph===null?0:Math.min(10,context.windKph/5)},
+    ...weather.factors.map(f=>({label:`Weather context: ${f.label}`,points:f.points})),
   ];
-  const missing = [history.distinctPasses<3||history.spanDays<7?'Limited historical depth':null,history.baselineFrp===null?'Historical baseline unavailable':null,context.landCover==='unknown'?'Land cover unavailable':null,context.windKph===null?'Wind unavailable':null,context.industrialDistanceKm===null?'Industrial distance unavailable':null,!report?'Classification analysis unavailable':null].filter((v):v is string=>!!v);
+  const missing = [history.distinctPasses<3||history.spanDays<7?'Limited historical depth':null,history.baselineFrp===null?'Historical baseline unavailable':null,context.landCover==='unknown'?'Land cover unavailable':null,context.industrialDistanceKm===null?'Industrial distance unavailable':null,!report?'Classification analysis unavailable':null,...weather.missing].filter((v):v is string=>!!v);
   return (['24h','48h','7d'] as const).map((window,i)=>{
     const horizonPoints=(history.trend==='rising'?1:history.trend==='falling'?-1:0)*[0,3,7][i];
     const contributingFactors=[...factors,{label:'Assumed trend continuation over horizon',points:horizonPoints}].map(f=>({...f,points:Math.round(f.points*10)/10}));
@@ -110,6 +133,7 @@ export function buildIntelligence(selected: Observation|null, observations: Obse
     predictions: learnedPredictions ?? estimateRisk(history,context,report),
     predictionMode: learnedPredictions ? 'real-recurrence-model' as const : 'heuristic-simulation' as const,
     recurrenceModel,
+    weatherAssessment: assessWeather(context),
     savedReports:relevant.map(s=>({id:s.id,createdAt:s.createdAt,classification:s.classification,summary:s.summary,evidence:s.report.evidence})),
     limitations:`Loaded thermal detections only, not verified incidents. Missing passes and non-detections are unknown. Baseline is mean FRP of prior distinct passes within 5 km; later observations excluded. Simulated and non-simulated history are separated. ${learnedPredictions?'Future windows use a historically trained thermal-recurrence model; recurrence is not a confirmed-fire forecast.':'Future windows use a transparent heuristic simulation until a real historical recurrence artifact is trained.'}`
   };
