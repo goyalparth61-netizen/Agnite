@@ -21,6 +21,8 @@ GROUNDING RULES:
 - Saved reports are historical snapshots, not current facts.
 - If location-specific evidence is unavailable, say so instead of filling gaps with general knowledge.
 - OpenStreetMap context is mapped evidence only. Nearby industry does not prove containment, operational status, or cause.
+- Open-Meteo weather is supporting environmental context only. Wind, humidity, temperature and rain can affect potential spread conditions but do not prove that a thermal hotspot is a fire.
+- If hotspotContext.weatherAssessment is present, explain it separately from NASA FIRMS evidence and preserve its source/uncertainty. Do not claim weather came from NASA.
 
 ANSWER STYLE:
 - Be useful, direct and easy to understand.
